@@ -4,6 +4,7 @@ public class songtest {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		System.out.println("세상사람들");
+		System.out.println("asdsa");
 	}
 
 }
