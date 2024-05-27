@@ -9,7 +9,6 @@ public class test {
         String url = "jdbc:mysql://localhost:3306";
         String user = "root";  // MySQL 설치 시 설정한 사용자명
         String password = "1234";  // MySQL 설치 시 설정한 비밀번호 
-        System.out.println("dasdasf");
 
         try {
             // MySQL JDBC 드라이버 로드
