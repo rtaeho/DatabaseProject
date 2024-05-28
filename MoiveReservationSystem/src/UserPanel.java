@@ -18,9 +18,7 @@ public class UserPanel extends JPanel {
 
         viewMoviesButton.addActionListener(e -> showMovieList());
         viewBookingsButton.addActionListener(e -> viewUserBookings());
-        backButton.addActionListener(e -> {
-           
-        });
+        backButton.addActionListener(e -> Utils.switchToPanel(this, new MainPanel()));
     }
     
     private void showMovieList() {
