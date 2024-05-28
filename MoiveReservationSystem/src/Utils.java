@@ -1,4 +1,6 @@
 import javax.swing.*;
+
+import java.awt.BorderLayout;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -15,6 +17,15 @@ public class Utils {
         } catch (ClassNotFoundException | SQLException e) {
             showMessage("Database connection error: " + e.getMessage());
             return null;
+        }
+    }
+    public static void switchToPanel(JComponent component, JPanel newPanel) {
+        JFrame frame = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, component);
+        if (frame != null) {
+            frame.getContentPane().removeAll();
+            frame.getContentPane().add(newPanel, BorderLayout.CENTER);
+            frame.revalidate();
+            frame.repaint();
         }
     }
 }
