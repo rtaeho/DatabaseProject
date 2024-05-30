@@ -27,14 +27,17 @@ public class Main {
 - Introduction (TEXT): 영화소개
 - ReleaseDate (DATE): 개봉일자
 - Score (DECIMAL(2,1)): 평점
+
 2. 영화 - 배우 관계 테이블 (MovieActors)
 - MovieID (INT, Foreign Key, References Movies(MovieID)):
 영화번호
 - ActorID (INT, Foreign Key, References Actors(ActorID)):
 배우번호
+
 3. 영화배우 테이블 (Actors)
 - ActorID (INT, Primary Key): 배우번호
 - ActorName (VARCHAR(255)): 배우명
+
 4. 상영일정 테이블 (Screenings)
 - ScreeningID (INT, Primary Key): 상영일정번호
 - MovieID (INT, Foreign Key, References Movies(MovieID)):
@@ -46,6 +49,7 @@ public class Main {
 - EndTime (TIME): 상영종료시간
 - FOREIGN KEY (TheaterID, ScreeningDate) REFERENCES
 Theaters(TheaterID, ScreeningDate)
+
 5. 상영관 테이블 (Theaters)
 - TheaterID (INT): 상영관번호
 - ScreeningDate (DATE): 상영일
@@ -54,6 +58,7 @@ Theaters(TheaterID, ScreeningDate)
 - HorizontalSeats (INT): 좌석 가로 수
 - VerticalSeats (INT): 좌석 세로 수
 - PRIMARY KEY (TheaterID, ScreeningDate)
+
 6. 티켓 테이블 (Tickets)
 - TicketID (INT, Primary Key): 티켓번호
 - ScreeningID (INT, Foreign Key, References
@@ -68,6 +73,7 @@ Bookings(BookingID)): 예매번호
 - SalePrice (INT): 판매가격
 - FOREIGN KEY (TheaterID, ScreeningDate) REFERENCES
 Theaters(TheaterID, ScreeningDate)
+
 7. 좌석 테이블 (Seats)
 - SeatID (INT, Primary Key): 좌석 번호
 - TheaterID (INT): 상영관 번호
@@ -75,11 +81,13 @@ Theaters(TheaterID, ScreeningDate)
 - IsActive (BOOLEAN): 좌석 사용 여부
 - FOREIGN KEY (TheaterID, ScreeningDate) REFERENCES
 Theaters(TheaterID, ScreeningDate)
+
 8. 회원고객 테이블 (Customers)
 - CustomerID (VARCHAR(255), Primary Key): 회원 아이디
 - CustomerName (VARCHAR(255)): 고객명
 - PhoneNumber (VARCHAR(15)): 휴대폰번호
 - Email (VARCHAR(255)): 전자메일주소
+
 9. 예매정보 테이블 (Bookings)
 - BookingID (INT, Primary Key, AUTO_INCREMENT): 예매번호
 - Payment (VARCHAR(50)): 결제 방법
