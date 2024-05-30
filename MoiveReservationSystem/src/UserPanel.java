@@ -1,8 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
 
 public class UserPanel extends JPanel {
-    public UserPanel() {
+	private Connection dbConnection;
+	
+    public UserPanel(Connection dbConnection) {
+    	this.dbConnection = dbConnection;
+    	
         setLayout(new BorderLayout());
 
         JButton viewMoviesButton = new JButton("영화 조회");
