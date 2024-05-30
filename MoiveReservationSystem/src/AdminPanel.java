@@ -38,6 +38,68 @@ public class AdminPanel extends JPanel {
         updateButton.addActionListener(e -> new MovieUpdateComponent());
         backButton.addActionListener(e -> Utils.switchToPanel(this, new MainPanel()));
     }
+    
+    private void initializeDatabase() {
+        Statement stmt = null;
+        ResultSet tables = null;
+        
+        String[] createTableQueries = {
+            "CREATE TABLE table1 (id INT PRIMARY KEY, name VARCHAR(50))",
+            "CREATE TABLE table2 (id INT PRIMARY KEY, address VARCHAR(100))",
+            "CREATE TABLE table3 (id INT PRIMARY KEY, email VARCHAR(100))"
+            // 필요한 테이블 생성 쿼리 추가
+        };
+
+        try {
+            stmt = dbConnection.createStatement(); // Statement 객체 생성
+            
+            stmt.executeUpdate("SET foreign_key_checks = 0"); //외래키 제약조건 해제
+            
+            // 데이터베이스 메타데이터를 통해 테이블 목록 가져오기
+            DatabaseMetaData metaData = dbConnection.getMetaData();
+            String catalog = dbConnection.getCatalog(); // 현재 연결된 데이터베이스의 카탈로그 이름을 가져옴
+            Utils.showMessage(catalog);
+            tables = metaData.getTables(catalog, null, "%", new String[]{"TABLE"});
+
+            // 모든 테이블 드롭하기
+            while (tables.next()) {
+                String tableName = tables.getString("TABLE_NAME");
+                
+                Utils.showMessage(tableName);    // 테스트용: 찾아낸 테이블 이름 출력
+                
+                String dropQuery = "DROP TABLE IF EXISTS " + tableName;
+                stmt.executeUpdate(dropQuery); // DROP TABLE 쿼리 실행
+            }
+            
+            stmt.executeUpdate("SET foreign_key_checks = 1");  //외래키 제약조건 재설정
+
+            // 새 테이블 생성하기
+            /*
+            for (String query : createTableQueries) {
+                stmt.executeUpdate(query); // CREATE TABLE 쿼리 실행
+            }
+            */
+
+            JOptionPane.showMessageDialog(this, "데이터베이스 초기화가 완료되었습니다.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "데이터베이스 초기화 중 오류가 발생했습니다: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            // Statement와 ResultSet 객체를 명시적으로 닫기
+            try {
+                if (tables != null) {
+                    tables.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    /*
 
     private void initializeDatabase() {
         // 초기화 로직 구현
@@ -70,11 +132,11 @@ public class AdminPanel extends JPanel {
     	        }
 
     	        // 새 테이블 생성하기
-    	        /*
+    	        
     	        for (String query : createTableQueries) {
     	            stmt.executeUpdate(query); // CREATE TABLE 쿼리 실행
     	        }
-    	        */
+    	        
 
     	        JOptionPane.showMessageDialog(this, "데이터베이스 초기화가 완료되었습니다.");
     	    } catch (SQLException e) {
@@ -85,6 +147,7 @@ public class AdminPanel extends JPanel {
     	
 
     }
+    */
 
     private void viewAllTables() {
         // 전체 테이블 조회 로직 구현
