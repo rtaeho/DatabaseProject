@@ -194,89 +194,87 @@ public class AdminPanel extends JPanel {
     }
 
 
-/*
-    private void viewAllTables() {
-        Statement stmt = null;
-        ResultSet tables = null;
-
-        try {
-            stmt = dbConnection.createStatement();
-            
-            // 데이터베이스 메타데이터를 통해 테이블 목록 가져오기
-            DatabaseMetaData metaData = dbConnection.getMetaData();
-            String catalog = dbConnection.getCatalog();
-            tables = metaData.getTables(catalog, null, "%", new String[]{"TABLE"});
-
-            // 새로운 JFrame 생성
-            JFrame frame = new JFrame("전체 테이블 조회");
-            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.setLayout(new BorderLayout());
-            
-            // 모든 테이블 데이터를 담을 JPanel
-            JPanel panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            
-            while (tables.next()) {
-                String tableName = tables.getString("TABLE_NAME");
-                
-                // 각 테이블에 대한 데이터를 가져오기 위한 쿼리 실행
-                ResultSet tableData = stmt.executeQuery("SELECT * FROM " + tableName);
-                ResultSetMetaData tableMetaData = tableData.getMetaData();
-                int columnCount = tableMetaData.getColumnCount();
-
-                // 테이블의 컬럼 이름을 가져와서 JTable의 헤더로 사용
-                String[] columnNames = new String[columnCount];
-                for (int i = 1; i <= columnCount; i++) {
-                    columnNames[i - 1] = tableMetaData.getColumnName(i);
-                }
-
-                // 테이블의 데이터를 가져와서 JTable의 데이터로 사용
-                DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-                while (tableData.next()) {
-                    Object[] rowData = new Object[columnCount];
-                    for (int i = 1; i <= columnCount; i++) {
-                        rowData[i - 1] = tableData.getObject(i);
-                    }
-                    model.addRow(rowData);
-                }
-
-                // JTable 생성 및 JScrollPane에 추가
-                JTable table = new JTable(model);
-                JScrollPane scrollPane = new JScrollPane(table);
-                scrollPane.setBorder(BorderFactory.createTitledBorder(tableName));
-                
-                // JPanel에 JScrollPane 추가
-                panel.add(scrollPane);
-            }
-
-            // JFrame에 JPanel 추가
-            frame.add(new JScrollPane(panel), BorderLayout.CENTER);
-            frame.setSize(800, 600);
-            frame.setVisible(true);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "테이블 조회 중 오류가 발생했습니다: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            try {
-                if (tables != null) {
-                    tables.close();
-                }
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    */
-
     // MovieInputComponent, MovieDeleteComponent, MovieUpdateComponent 클래스의
     // 생성자 및 메서드는 실제 구현에 따라 내용을 추가해야 함.
 }
 
+/*
+private void viewAllTables() {
+    Statement stmt = null;
+    ResultSet tables = null;
 
+    try {
+        stmt = dbConnection.createStatement();
+        
+        // 데이터베이스 메타데이터를 통해 테이블 목록 가져오기
+        DatabaseMetaData metaData = dbConnection.getMetaData();
+        String catalog = dbConnection.getCatalog();
+        tables = metaData.getTables(catalog, null, "%", new String[]{"TABLE"});
+
+        // 새로운 JFrame 생성
+        JFrame frame = new JFrame("전체 테이블 조회");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        
+        // 모든 테이블 데이터를 담을 JPanel
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+        while (tables.next()) {
+            String tableName = tables.getString("TABLE_NAME");
+            
+            // 각 테이블에 대한 데이터를 가져오기 위한 쿼리 실행
+            ResultSet tableData = stmt.executeQuery("SELECT * FROM " + tableName);
+            ResultSetMetaData tableMetaData = tableData.getMetaData();
+            int columnCount = tableMetaData.getColumnCount();
+
+            // 테이블의 컬럼 이름을 가져와서 JTable의 헤더로 사용
+            String[] columnNames = new String[columnCount];
+            for (int i = 1; i <= columnCount; i++) {
+                columnNames[i - 1] = tableMetaData.getColumnName(i);
+            }
+
+            // 테이블의 데이터를 가져와서 JTable의 데이터로 사용
+            DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+            while (tableData.next()) {
+                Object[] rowData = new Object[columnCount];
+                for (int i = 1; i <= columnCount; i++) {
+                    rowData[i - 1] = tableData.getObject(i);
+                }
+                model.addRow(rowData);
+            }
+
+            // JTable 생성 및 JScrollPane에 추가
+            JTable table = new JTable(model);
+            JScrollPane scrollPane = new JScrollPane(table);
+            scrollPane.setBorder(BorderFactory.createTitledBorder(tableName));
+            
+            // JPanel에 JScrollPane 추가
+            panel.add(scrollPane);
+        }
+
+        // JFrame에 JPanel 추가
+        frame.add(new JScrollPane(panel), BorderLayout.CENTER);
+        frame.setSize(800, 600);
+        frame.setVisible(true);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "테이블 조회 중 오류가 발생했습니다: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        try {
+            if (tables != null) {
+                tables.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+*/
 
 
 /*
