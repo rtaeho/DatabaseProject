@@ -1,0 +1,168 @@
+DROP DATABASE IF EXISTS db1;
+CREATE DATABASE db1;
+USE db1;
+
+-- 영화배우 (Actors) Table
+CREATE TABLE Actors (
+    ActorID INT PRIMARY KEY,
+    ActorName VARCHAR(255)
+);
+
+-- 회원고객 (Customers) Table
+CREATE TABLE Customers (
+    CustomerID VARCHAR(255) PRIMARY KEY,
+    CustomerName VARCHAR(255),
+    PhoneNumber VARCHAR(15),
+    Email VARCHAR(255)
+);
+
+-- 영화 (Movies) Table
+CREATE TABLE Movies (
+    MovieID INT PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL,
+    MovieTime INT NOT NULL,
+    Rating VARCHAR(255),
+    Director VARCHAR(255),
+    Genre VARCHAR(255),
+    Introduction TEXT,
+    ReleaseDate DATE,
+    Score DECIMAL(2,1)
+);
+
+-- 상영관 (Theaters) Table
+CREATE TABLE Theaters (
+    TheaterID INT,
+    ScreeningDate DATE,
+    NumberOfSeats INT,
+    TheaterUse BOOLEAN,
+    HorizontalSeats INT,
+    VerticalSeats INT,
+    PRIMARY KEY (TheaterID, ScreeningDate)
+);
+
+-- 좌석 (Seats) Table
+CREATE TABLE Seats (
+    SeatID INT PRIMARY KEY,
+    TheaterID INT,
+    ScreeningDate DATE,
+    IsActive BOOLEAN,
+    FOREIGN KEY (TheaterID, ScreeningDate) REFERENCES Theaters(TheaterID, ScreeningDate)
+);
+
+-- 상영일정 (Screenings) Table
+CREATE TABLE Screenings (
+    ScreeningID INT PRIMARY KEY,
+    MovieID INT,
+    TheaterID INT,
+    ScreeningDate DATE,
+    SessionNumber INT,
+    StartTime TIME,
+    EndTime TIME,
+    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID),
+    FOREIGN KEY (TheaterID, ScreeningDate) REFERENCES Theaters(TheaterID, ScreeningDate)
+);
+
+-- 예매정보 (Bookings) Table
+CREATE TABLE Bookings (
+    BookingID INT PRIMARY KEY AUTO_INCREMENT,
+    Payment VARCHAR(50),
+    PaymentStatus VARCHAR(50),
+    Amount INT,
+    CustomerID VARCHAR(255),
+    PaymentDate DATE,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+-- 티켓 (Tickets) Table
+CREATE TABLE Tickets (
+    TicketID INT PRIMARY KEY,
+    ScreeningID INT,
+    ScreeningDate DATE,
+    TheaterID INT,
+    SeatID INT,
+    BookingID INT,
+    IsTicketing BOOLEAN,
+    StandardPrice INT,
+    SalePrice INT,
+    FOREIGN KEY (ScreeningID) REFERENCES Screenings(ScreeningID),
+    FOREIGN KEY (TheaterID, ScreeningDate) REFERENCES Theaters(TheaterID, ScreeningDate),
+    FOREIGN KEY (SeatID) REFERENCES Seats(SeatID),
+    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID)
+);
+
+-- 영화-배우 관계 (MovieActors) Table
+CREATE TABLE MovieActors (
+    MovieID INT,
+    ActorID INT,
+    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID),
+    FOREIGN KEY (ActorID) REFERENCES Actors(ActorID)
+);
+
+-- 영화배우 (Actors) 샘플 데이터
+INSERT INTO Actors (ActorID, ActorName) VALUES
+(1, '로버트 다우니 주니어'),
+(2, '스칼렛 요한슨'),
+(3, '크리스 헴스워스'),
+(4, '마크 러팔로'),
+(5, '톰 홀랜드');
+
+-- 회원고객 (Customers) 샘플 데이터
+INSERT INTO Customers (CustomerID, CustomerName, PhoneNumber, Email) VALUES
+('C001', '김철수', '010-1234-5678', 'chulsu@example.com'),
+('C002', '박영희', '010-2345-6789', 'younghee@example.com'),
+('C003', '이민준', '010-3456-7890', 'minjun@example.com'),
+('C004', '최지은', '010-4567-8901', 'jieun@example.com'),
+('C005', '한서아', '010-5678-9012', 'seoah@example.com');
+
+-- 영화 (Movies) 샘플 데이터
+INSERT INTO Movies (MovieID, Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) VALUES
+(1, '어벤져스: 엔드게임', 181, '12', '루소 형제', '액션', '어벤져스의 마지막 이야기', '2019-04-24', 9.5),
+(2, '기생충', 132, '15', '봉준호', '드라마', '두 가족의 이야기', '2019-05-30', 9.2),
+(3, '인셉션', 148, '12', '크리스토퍼 놀란', 'SF', '꿈 속의 이야기', '2010-07-21', 9.3),
+(4, '라라랜드', 128, '12', '데이미언 셔젤', '뮤지컬', '꿈을 향한 노래', '2016-12-07', 8.7),
+(5, '조커', 122, '15', '토드 필립스', '드라마', '조커의 탄생', '2019-10-02', 9.1);
+
+-- 상영관 (Theaters) 샘플 데이터
+INSERT INTO Theaters (TheaterID, ScreeningDate, NumberOfSeats, TheaterUse, HorizontalSeats, VerticalSeats) VALUES
+(1, '2024-06-10', 100, TRUE, 10, 10),
+(2, '2024-06-11', 100, TRUE, 10, 10),
+(3, '2024-06-12', 100, TRUE, 10, 10),
+(4, '2024-06-13', 100, TRUE, 10, 10),
+(5, '2024-06-14', 100, TRUE, 10, 10);
+
+-- 좌석 (Seats) 샘플 데이터
+INSERT INTO Seats (SeatID, TheaterID, ScreeningDate, IsActive) VALUES
+(1, 1, '2024-06-10', TRUE),
+(2, 2, '2024-06-11', TRUE),
+(3, 3, '2024-06-12', TRUE),
+(4, 4, '2024-06-13', TRUE),
+(5, 5, '2024-06-14', TRUE);
+
+-- 상영일정 (Screenings) 샘플 데이터
+INSERT INTO Screenings (ScreeningID, MovieID, TheaterID, ScreeningDate, SessionNumber, StartTime, EndTime) VALUES
+(1, 1, 1, '2024-06-10', 1, '13:00:00', '16:01:00'),
+(2, 2, 2, '2024-06-11', 2, '14:00:00', '16:12:00'),
+(3, 3, 3, '2024-06-12', 3, '15:00:00', '17:28:00'),
+(4, 4, 4, '2024-06-13', 4, '16:00:00', '18:08:00'),
+(5, 5, 5, '2024-06-14', 5, '17:00:00', '19:02:00');
+
+-- 예매정보 (Bookings) 샘플 데이터
+INSERT INTO Bookings (Payment, PaymentStatus, Amount, CustomerID, PaymentDate) VALUES
+('Credit Card', 'Completed', 10000, 'C001', '2024-06-01'),
+('PayPal', 'Completed', 12000, 'C002', '2024-06-02'),
+('Bank Transfer', 'Pending', 9000, 'C003', '2024-06-03'),
+('Credit Card', 'Refunded', 11000, 'C004', '2024-06-04'),
+('Cash', 'Completed', 8000, 'C005', '2024-06-05');
+
+SHOW DATABASES;
+SHOW TABLES;
+
+SELECT * FROM Actors;
+SELECT * FROM Movies;
+SELECT * FROM Customers;
+SELECT * FROM Theaters;
+SELECT * FROM Seats;
+SELECT * FROM Screenings;
+SELECT * FROM Bookings;
+SELECT * FROM Tickets;
+SELECT * FROM  MovieActors;
