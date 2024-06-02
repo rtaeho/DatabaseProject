@@ -33,7 +33,7 @@ public class AdminPanel extends JPanel {
         // 각 버튼에 대한 액션 리스너 구현
         initButton.addActionListener(e -> initializeDatabase());
         viewAllButton.addActionListener(e -> viewAllTables());
-        insertButton.addActionListener(e -> new MovieInputComponent());
+        insertButton.addActionListener(e -> new MovieInputComponent(dbConnection));
         deleteButton.addActionListener(e -> new MovieDeleteComponent());
         updateButton.addActionListener(e -> new MovieUpdateComponent());
         backButton.addActionListener(e -> Utils.switchToPanel(this, new MainPanel()));
