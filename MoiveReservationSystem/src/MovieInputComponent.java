@@ -34,7 +34,7 @@ public class MovieInputComponent extends JFrame {
 	}
 
 	private void openInputForm(ActionEvent e, String tableName) {
-		currentFrame = createFrame("추가 " + tableName, 400, 400);
+		currentFrame = createFrame("추가 " + tableName, 600, 600);
 		currentFrame.getContentPane().requestFocusInWindow();
 		switch (tableName) {
 		case "Movies":
@@ -42,13 +42,13 @@ public class MovieInputComponent extends JFrame {
 					PlaceholderComponent.createPlaceholderTextComponent("ex) 기생충", false), new JLabel("상영시간(분):"),
 					PlaceholderComponent.createPlaceholderTextComponent("ex) 131", false), new JLabel("상영등급:"),
 					PlaceholderComponent.createPlaceholderTextComponent("ex) 15세 이상 관람가", false), new JLabel("감독명:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 봉준호", false), new JLabel("배우:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 송강호, 이선균, 최우식", false), new JLabel("장르:"),
+					PlaceholderComponent.createPlaceholderTextComponent("ex) 봉준호", false), new JLabel("장르:"),
 					PlaceholderComponent.createPlaceholderTextComponent("ex) 드라마", false), new JLabel("영화소개:"),
 					PlaceholderComponent.createPlaceholderTextComponent("ex) 전원백수로 살 길 막막하지만 사이는 좋은 기택(송강호) 가족...",
 							true),
 					new JLabel("개봉일자:"), PlaceholderComponent.createPlaceholderTextComponent("ex) 2019.05.30", false),
-					new JLabel("평점:"), PlaceholderComponent.createPlaceholderTextComponent("ex) 9.1", false));
+					new JLabel("평점:"), PlaceholderComponent.createPlaceholderTextComponent("ex) 9.1", false),
+					new JLabel("배우:"), PlaceholderComponent.createPlaceholderTextComponent("ex) 송강호, 이선균, 최우식", false));
 			break;
 		case "Screenings":
 			addInputFields(currentFrame, new JLabel("영화번호:"),
@@ -106,22 +106,23 @@ public class MovieInputComponent extends JFrame {
 	}
 
 	private void saveData(ActionEvent e, String tableName) {
-		try {
-			String query = generateInsertQuery(tableName);
-			PreparedStatement statement = connection.prepareStatement(query);
-			setValues(statement, currentFrame);
-			statement.executeUpdate();
-			JOptionPane.showMessageDialog(this, "데이터가 성공적으로 저장되었습니다.");
-		} catch (SQLException ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "데이터 저장 중 오류가 발생했습니다.");
-		}
+	    try {
+	        String query = generateInsertQuery(tableName);
+	        PreparedStatement statement = connection.prepareStatement(query);
+	        setValues(statement, currentFrame); // 매개변수 값 설정
+	        statement.executeUpdate();
+	        JOptionPane.showMessageDialog(this, "데이터가 성공적으로 저장되었습니다.");
+	    } catch (SQLException ex) {
+	        ex.printStackTrace();
+	        JOptionPane.showMessageDialog(this, "데이터 저장 중 오류가 발생했습니다.");
+	    }
 	}
 
 	private String generateInsertQuery(String tableName) {
 		switch (tableName) {
 		case "Movies":
-			return "INSERT INTO Movies (MovieID, Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			return "INSERT INTO Movies (MovieID, Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+					+ "INSERT INTO Actors (ActorName) VALUES (?)";
 		case "Screenings":
 			return "INSERT INTO Screenings (ScreeningID, MovieID, TheaterID, ScreeningDate, SessionNumber, StartTime, EndTime) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		case "Theaters":
@@ -140,29 +141,29 @@ public class MovieInputComponent extends JFrame {
 	}
 
 	private void setValues(PreparedStatement statement, JFrame frame) throws SQLException {
-		Component[] components = frame.getContentPane().getComponents();
-		int index = 1;
-		for (Component component : components) {
-			if (component instanceof JTextField) {
-				JTextField textField = (JTextField) component;
-				statement.setString(index++,
-						textField.getText().equals(textField.getForeground().equals(Color.GRAY)) ? ""
-								: textField.getText());
-			} else if (component instanceof JTextArea) {
-				JTextArea textArea = (JTextArea) component;
-				statement.setString(index++, textArea.getText().equals(textArea.getForeground().equals(Color.GRAY)) ? ""
-						: textArea.getText());
-			} else if (component instanceof JCheckBox) {
-				statement.setBoolean(index++, ((JCheckBox) component).isSelected());
-			}
-		}
+	    Component[] components = frame.getContentPane().getComponents();
+	    int index = 1;
+	    for (Component component : components) {
+	        if (component instanceof JTextField) {
+	            JTextField textField = (JTextField) component;
+	            String text = textField.getText().trim(); // 텍스트에서 앞뒤 공백을 제거
+	            statement.setString(index++, text.isEmpty() ? null : text); // 텍스트가 비어 있다면 NULL을 사용
+	        } else if (component instanceof JTextArea) {
+	            JTextArea textArea = (JTextArea) component;
+	            String text = textArea.getText().trim();
+	            statement.setString(index++, text.isEmpty() ? null : text);
+	        } else if (component instanceof JCheckBox) {
+	            statement.setBoolean(index++, ((JCheckBox) component).isSelected());
+	        }
+	    }
 	}
+
 
 	private void addInputFields(JFrame frame, Component... components) {
 		JPanel inputPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(5, 5, 5, 5); // 컴포넌트 간의 여백 설정
+		gbc.insets = new Insets(5, 20, 5, 20); // 컴포넌트 간의 여백 설정
 
 		// 입력 필드 추가
 		for (int i = 0; i < components.length; i++) {
@@ -171,6 +172,9 @@ public class MovieInputComponent extends JFrame {
 			gbc.weightx = 1.0; // 수평 방향으로 공간을 차지하도록 설정
 			gbc.weighty = 0.0; // 수직 방향으로는 공간을 차지하지 않도록 설정
 			gbc.gridwidth = GridBagConstraints.REMAINDER; // 한 줄 전체를 차지하도록 설정
+			if (components[i] instanceof JTextField) {
+	            ((JTextField) components[i]).setColumns(20); // 텍스트 필드의 길이 설정
+	        }
 			inputPanel.add(components[i], gbc);
 		}
 
@@ -194,9 +198,15 @@ public class MovieInputComponent extends JFrame {
 
 	private JFrame createFrame(String title, int width, int height) {
 		JFrame frame = new JFrame(title);
-		frame.setSize(width, height);
-		frame.setLayout(new GridLayout(0, 2));
-		frame.setVisible(true);
-		return frame;
+	    frame.setSize(width, height);
+	    frame.setLayout(new BorderLayout()); // Changed to BorderLayout for better control over layout
+	    frame.setVisible(true);
+	    frame.setResizable(false); // Make sure the frame is not resizable
+
+	    // 패딩을 위한 빈 컴포넌트 추가
+	    frame.add(Box.createRigidArea(new Dimension(20, 0)), BorderLayout.WEST);
+	    frame.add(Box.createRigidArea(new Dimension(20, 0)), BorderLayout.EAST);
+
+	    return frame;
 	}
 }
