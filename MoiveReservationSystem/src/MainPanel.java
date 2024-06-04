@@ -43,5 +43,7 @@ public class MainPanel extends JPanel {
 
         add(titleLabel, BorderLayout.NORTH);
         add(buttonPanel, BorderLayout.CENTER);
+        
     }
+    
 }
