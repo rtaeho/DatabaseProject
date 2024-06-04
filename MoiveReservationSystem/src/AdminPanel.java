@@ -46,12 +46,101 @@ public class AdminPanel extends JPanel {
         ResultSet tables = null;
         
         String[] createTableQueries = {
-            "CREATE TABLE table1 (id INT PRIMARY KEY, name VARCHAR(50))",
-            "CREATE TABLE table2 (id INT PRIMARY KEY, address VARCHAR(100))",
-            "CREATE TABLE table3 (id INT PRIMARY KEY, email VARCHAR(100))"
-            // 필요한 테이블 생성 쿼리 추가
-        };
+                "CREATE TABLE Actors (" +
+                "    ActorID INT PRIMARY KEY," +
+                "    ActorName VARCHAR(255)" +
+                ")",
 
+                "CREATE TABLE Customers (" +
+                "    CustomerID VARCHAR(255) PRIMARY KEY," +
+                "    CustomerName VARCHAR(255)," +
+                "    PhoneNumber VARCHAR(15)," +
+                "    Email VARCHAR(255)" +
+                ")",
+
+                "CREATE TABLE Movies (" +
+                "    MovieID INT PRIMARY KEY AUTO_INCREMENT," +  // auto_increment 추가
+                "    Title VARCHAR(255) NOT NULL," +
+                "    MovieTime INT NOT NULL," +
+                "    Rating VARCHAR(255)," +
+                "    Director VARCHAR(255)," +
+                "    Genre VARCHAR(255)," +
+                "    Introduction VARCHAR(255)," +
+                "    ReleaseDate DATE," +
+                "    Score DECIMAL(2,1)" +
+                ")",
+
+                "CREATE TABLE Theaters (" +
+                "    TheaterID INT PRIMARY KEY," +
+                "    NumberOfSeats INT," +
+                "    HorizontalSeats INT," +
+                "    VerticalSeats INT" +
+                ")",
+
+                "CREATE TABLE Screenings (" +
+                "    ScreeningID INT PRIMARY KEY AUTO_INCREMENT," +  // auto_increment 추가
+                "    MovieID INT," +
+                "    TheaterID INT," +
+                "    ScreeningStartDate DATE," +
+                "    ScreeningDate DATE UNIQUE," +
+                "    SessionNumber INT," +
+                "    StartTime TIME," +
+                "    EndTime TIME," +
+                "    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID)," +
+                "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID)" +
+                ")",
+
+                "CREATE TABLE Seats (" +
+                "    SeatID INT PRIMARY KEY," +
+                "    TheaterID INT," +
+                "    ScreeningID INT," +
+                "    IsActive BOOLEAN," +
+                "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID)," +
+                "    FOREIGN KEY (ScreeningID) REFERENCES Screenings(ScreeningID)" +
+                ")",
+
+                "CREATE TABLE TheaterUse (" +
+                "    TheaterID INT," +
+                "    ScreeningDate DATE," +
+                "    TheaterUse BOOLEAN," +
+                "    PRIMARY KEY (TheaterID, ScreeningDate)," +
+                "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID)," +
+                "    FOREIGN KEY (ScreeningDate) REFERENCES Screenings(ScreeningDate)" +
+                ")",
+
+                "CREATE TABLE Bookings (" +
+                "    BookingID INT PRIMARY KEY AUTO_INCREMENT," +  // auto_increment 추가
+                "    Payment VARCHAR(50)," +
+                "    PaymentStatus VARCHAR(50)," +
+                "    Amount INT," +
+                "    CustomerID VARCHAR(255)," +
+                "    PaymentDate DATE," +
+                "    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)" +
+                ")",
+
+                "CREATE TABLE Tickets (" +
+                "    TicketID INT PRIMARY KEY AUTO_INCREMENT," +  // auto_increment 추가
+                "    ScreeningID INT," +
+                "    ScreeningDate DATE," +
+                "    TheaterID INT," +
+                "    SeatID INT," +
+                "    BookingID INT," +
+                "    IsTicketing BOOLEAN," +
+                "    StandardPrice INT," +
+                "    SalePrice INT," +
+                "    FOREIGN KEY (ScreeningID) REFERENCES Screenings(ScreeningID)," +
+                "    FOREIGN KEY (SeatID) REFERENCES Seats(SeatID)," +
+                "    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID)" +
+                ")",
+
+                "CREATE TABLE MovieActors (" +
+                "    MovieID INT," +
+                "    ActorID INT," +
+                "    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID)," +
+                "    FOREIGN KEY (ActorID) REFERENCES Actors(ActorID)" +
+                ")"
+            };
+        
         try {
             stmt = dbConnection.createStatement(); // Statement 객체 생성
             
@@ -75,12 +164,13 @@ public class AdminPanel extends JPanel {
             
             stmt.executeUpdate("SET foreign_key_checks = 1");  //외래키 제약조건 재설정
 
-            // 새 테이블 생성하기
-            /*
+            // 새 테이블 생성  
             for (String query : createTableQueries) {
                 stmt.executeUpdate(query); // CREATE TABLE 쿼리 실행
             }
-            */
+            
+            //테이블 샘플 데이터 삽입
+            
 
             JOptionPane.showMessageDialog(this, "데이터베이스 초기화가 완료되었습니다.");
         } catch (SQLException e) {
