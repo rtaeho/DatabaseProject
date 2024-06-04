@@ -11,7 +11,6 @@ public class Main {
             // MainPanel 인스턴스를 생성하고 프레임에 추가
             MainPanel mainPanel = new MainPanel();
             frame.add(mainPanel);
-
             frame.setVisible(true);
         });
     }
