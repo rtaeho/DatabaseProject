@@ -29,6 +29,7 @@ public class UserPanel extends JPanel {
     private void showMovieList() {
         // 영화 목록 조회 로직 구현
         // 예를 들어, MovieListComponent 클래스의 인스턴스를 생성하고 화면에 표시
+    	
     }
 
     private void viewUserBookings() {
