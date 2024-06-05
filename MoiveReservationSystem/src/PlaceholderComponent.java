@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -47,5 +46,13 @@ public class PlaceholderComponent {
         });
 
         return component;
+    }
+
+    public static Component getComponent(Container container, int index) {
+        Component[] components = container.getComponents();
+        if (index < 0 || index >= components.length) {
+            throw new IndexOutOfBoundsException("Index out of bounds");
+        }
+        return components[index];
     }
 }
