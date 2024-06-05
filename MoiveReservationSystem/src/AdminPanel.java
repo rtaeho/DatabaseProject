@@ -127,7 +127,6 @@ public class AdminPanel extends JPanel {
         	    "    ScreeningDate DATE," +
         	    "    SessionNumber INT," +
         	    "    StartTime TIME," +
-        	    "    EndTime TIME," +
         	    "    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID)," +
         	    "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID)" +
         	    ");",
@@ -239,25 +238,27 @@ public class AdminPanel extends JPanel {
         	    "(9, 20, 5, 4), (10, 20, 5, 4), (11, 20, 5, 4), (12, 20, 5, 4)";
 
         String insertScreenings = 
-        	    "INSERT INTO Screenings (MovieID, TheaterID, ScreeningStartDate, ScreeningDate, SessionNumber, StartTime, EndTime) VALUES " +
-        	    "(1, 1, '2023-01-01', '2023-01-02', 1, '10:00:00', '12:00:00'), " +
-        	    "(2, 2, '2023-02-01', '2023-02-02', 1, '11:00:00', '13:00:00'), " +
-        	    "(3, 3, '2023-03-01', '2023-03-02', 1, '12:00:00', '14:00:00'), " +
-        	    "(4, 4, '2023-04-01', '2023-04-02', 1, '13:00:00', '15:00:00'), " +
-        	    "(5, 5, '2023-05-01', '2023-05-02', 1, '14:00:00', '16:00:00'), " +
-        	    "(6, 6, '2023-06-01', '2023-06-02', 1, '15:00:00', '17:00:00'), " +
-        	    "(7, 7, '2023-07-01', '2023-07-02', 1, '16:00:00', '18:00:00'), " +
-        	    "(8, 8, '2023-08-01', '2023-08-02', 1, '17:00:00', '19:00:00'), " +
-        	    "(9, 9, '2023-09-01', '2023-09-02', 1, '18:00:00', '20:00:00'), " +
-        	    "(10, 10, '2023-10-01', '2023-10-02', 1, '19:00:00', '21:00:00'), " +
-        	    "(11, 11, '2023-11-01', '2023-11-02', 1, '20:00:00', '22:00:00'), " +
-        	    "(12, 12, '2023-12-01', '2023-12-02', 1, '21:00:00', '23:00:00')";
-
+        	    "INSERT INTO Screenings (MovieID, TheaterID, ScreeningStartDate, ScreeningDate, SessionNumber, StartTime) VALUES " +
+        	    "(1, 1, '2023-01-01', '2023-01-02', 1, '10:00:00'), " +
+        	    "(2, 2, '2023-02-01', '2023-02-02', 1, '11:00:00'), " +
+        	    "(3, 3, '2023-03-01', '2023-03-02', 1, '12:00:00'), " +
+        	    "(4, 4, '2023-04-01', '2023-04-02', 1, '13:00:00'), " +
+        	    "(5, 5, '2023-05-01', '2023-05-02', 1, '14:00:00'), " +
+        	    "(6, 6, '2023-06-01', '2023-06-02', 1, '15:00:00'), " +
+        	    "(7, 7, '2023-07-01', '2023-07-02', 1, '16:00:00'), " +
+        	    "(8, 8, '2023-08-01', '2023-08-02', 1, '17:00:00'), " +
+        	    "(9, 9, '2023-09-01', '2023-09-02', 1, '18:00:00'), " +
+        	    "(10, 10, '2023-10-01', '2023-10-02', 1, '19:00:00'), " +
+        	    "(11, 11, '2023-11-01', '2023-11-02', 1, '20:00:00'), " +
+        	    "(12, 12, '2023-12-01', '2023-12-02', 1, '21:00:00')";
+        
+        /*
         String insertSeats = 
         	    "INSERT INTO Seats (TheaterID, ScreeningID, SeatID, IsActive) " +
         	    "SELECT t.TheaterID, s.ScreeningID, (t.TheaterID - 1) * 12 + (s.ScreeningID - 1) % 12 + 1, FALSE " +
         	    "FROM Theaters t, Screenings s";
-
+		*/
+        
         String insertTheaterUse = 
         	    "INSERT INTO TheaterUse (TheaterID, ScreeningID, TheaterUse) " +
         	    "SELECT t.TheaterID, s.ScreeningID, FALSE " +
@@ -326,8 +327,6 @@ public class AdminPanel extends JPanel {
             stmt.executeUpdate(insertScreenings);
             
             insertSeats();
-            
-            //stmt.executeUpdate(insertSeats);
             
             stmt.executeUpdate(insertTheaterUse);
             stmt.executeUpdate(updateTheaterUse);
