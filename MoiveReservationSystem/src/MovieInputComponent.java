@@ -2,6 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class MovieInputComponent extends JFrame {
 	private Connection connection;
@@ -62,40 +66,95 @@ public class MovieInputComponent extends JFrame {
 	}
 
 	private void createInputFormForMovies() {
-		// 필드 초기화
 		JTextField movieNameField = new JTextField();
 		JTextField durationField = new JTextField();
 		JTextField ratingField = new JTextField();
 		JTextField directorField = new JTextField();
-		JTextField actorsField = new JTextField();
 		JTextField genreField = new JTextField();
-		JTextField synopsisField = new JTextField();
+		JTextField introductionField = new JTextField();
 		JTextField releaseDateField = new JTextField();
-		JTextField ratingValueField = new JTextField();
+		JTextField scoreField = new JTextField();
+		JTextField actorsField = new JTextField(); // 배우명 필드 추가
 
-		// 입력 필드 추가
 		addInputFields(currentFrame, new JLabel("영화명:"), movieNameField, new JLabel("상영시간(분):"), durationField,
-				new JLabel("상영등급:"), ratingField, new JLabel("감독명:"), directorField, new JLabel("배우:"), actorsField,
-				new JLabel("장르:"), genreField, new JLabel("영화소개:"), synopsisField, new JLabel("개봉일자:"),
-				releaseDateField, new JLabel("평점:"), ratingValueField);
+				new JLabel("상영등급:"), ratingField, new JLabel("감독명:"), directorField, new JLabel("장르:"), genreField,
+				new JLabel("영화소개:"), introductionField, new JLabel("개봉일자:"), releaseDateField, new JLabel("평점:"),
+				scoreField, new JLabel("배우명(쉼표로 구분):"), actorsField); // 배우명 필드 추가
 
-		// 버튼 추가
 		JPanel buttonPanel = createButtonPanel(e -> {
-			// 저장 버튼 액션
 			String movieName = movieNameField.getText();
 			int duration = Integer.parseInt(durationField.getText());
 			String rating = ratingField.getText();
 			String director = directorField.getText();
-			String actors = actorsField.getText();
 			String genre = genreField.getText();
-			String synopsis = synopsisField.getText();
+			String introduction = introductionField.getText();
 			String releaseDate = releaseDateField.getText();
-			double ratingValue = Double.parseDouble(ratingValueField.getText());
+			double score = Double.parseDouble(scoreField.getText());
+			String[] actors = actorsField.getText().split(","); // 쉼표로 구분된 배우명
 
-			// 영화 정보 처리 로직 추가
+			insertMovieWithActors(movieName, duration, rating, director, genre, introduction, releaseDate, score,
+					actors);
 		}, e -> currentFrame.dispose());
-
+		Utils.showMessage("데이터가 저장되었습니다.");
+		currentFrame.dispose();
 		currentFrame.add(buttonPanel);
+	}
+
+	private void insertMovieWithActors(String title, int movieTime, String rating, String director, String genre,
+			String introduction, String releaseDate, double score, String[] actors) {
+		String movieSql = "INSERT INTO Movies (Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		String actorSql = "INSERT INTO Actors (ActorName) VALUES (?) ON DUPLICATE KEY UPDATE ActorID=LAST_INSERT_ID(ActorID)";
+		String movieActorSql = "INSERT INTO MovieActors (MovieID, ActorID) VALUES (?, ?)";
+
+		try {
+			connection.setAutoCommit(false); // 트랜잭션 시작
+
+			// 영화 데이터 삽입
+			try (PreparedStatement moviePstmt = connection.prepareStatement(movieSql,
+					Statement.RETURN_GENERATED_KEYS)) {
+				moviePstmt.setString(1, title);
+				moviePstmt.setInt(2, movieTime);
+				moviePstmt.setString(3, rating);
+				moviePstmt.setString(4, director);
+				moviePstmt.setString(5, genre);
+				moviePstmt.setString(6, introduction);
+				moviePstmt.setDate(7, java.sql.Date.valueOf(releaseDate));
+				moviePstmt.setDouble(8, score);
+
+				moviePstmt.executeUpdate();
+
+				ResultSet generatedKeys = moviePstmt.getGeneratedKeys();
+				if (generatedKeys.next()) {
+					int movieId = generatedKeys.getInt(1);
+
+					// 배우 데이터 삽입 및 MovieActors 테이블 업데이트
+					try (PreparedStatement actorPstmt = connection.prepareStatement(actorSql,
+							Statement.RETURN_GENERATED_KEYS);
+							PreparedStatement movieActorPstmt = connection.prepareStatement(movieActorSql)) {
+						for (String actor : actors) {
+							actorPstmt.setString(1, actor.trim());
+							actorPstmt.executeUpdate();
+
+							ResultSet actorKeys = actorPstmt.getGeneratedKeys();
+							if (actorKeys.next()) {
+								int actorId = actorKeys.getInt(1);
+								movieActorPstmt.setInt(1, movieId);
+								movieActorPstmt.setInt(2, actorId);
+								movieActorPstmt.executeUpdate();
+							}
+						}
+					}
+				}
+
+				connection.commit(); // 트랜잭션 커밋
+			} catch (SQLException e) {
+				connection.rollback(); // 트랜잭션 롤백
+				e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void createInputFormForScreenings() {
