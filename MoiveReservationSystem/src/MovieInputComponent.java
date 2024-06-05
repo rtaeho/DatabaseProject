@@ -94,9 +94,9 @@ public class MovieInputComponent extends JFrame {
 
 			insertMovieWithActors(movieName, duration, rating, director, genre, introduction, releaseDate, score,
 					actors);
+			Utils.showMessage("데이터가 저장되었습니다.");
+			currentFrame.dispose();
 		}, e -> currentFrame.dispose());
-		Utils.showMessage("데이터가 저장되었습니다.");
-		currentFrame.dispose();
 		currentFrame.add(buttonPanel);
 	}
 
