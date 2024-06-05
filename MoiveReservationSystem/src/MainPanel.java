@@ -35,7 +35,7 @@ public class MainPanel extends JPanel {
                 Utils.switchToPanel(this, new UserPanel(dbConnection));
             }
         });
-
+        
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 50));
         buttonPanel.add(adminButton);
