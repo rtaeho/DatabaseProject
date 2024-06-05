@@ -1,9 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class MovieInputComponent extends JFrame {
 	private Connection connection;
@@ -29,174 +27,250 @@ public class MovieInputComponent extends JFrame {
 
 	private void addButton(String tableName) {
 		JButton button = new JButton(tableName);
-		button.addActionListener(e -> openInputForm(e, tableName));
+		button.addActionListener(e -> openInputForm(tableName));
 		add(button);
 	}
 
-	private void openInputForm(ActionEvent e, String tableName) {
-		currentFrame = createFrame("추가 " + tableName, 400, 400);
+	private void openInputForm(String tableName) {
+		currentFrame = createFrame("추가 " + tableName, 600, 600);
 		currentFrame.getContentPane().requestFocusInWindow();
 		switch (tableName) {
 		case "Movies":
-			addInputFields(currentFrame, new JLabel("영화명:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 기생충", false), new JLabel("상영시간(분):"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 131", false), new JLabel("상영등급:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 15세 이상 관람가", false), new JLabel("감독명:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 봉준호", false), new JLabel("배우:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 송강호, 이선균, 최우식", false), new JLabel("장르:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 드라마", false), new JLabel("영화소개:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 전원백수로 살 길 막막하지만 사이는 좋은 기택(송강호) 가족...",
-							true),
-					new JLabel("개봉일자:"), PlaceholderComponent.createPlaceholderTextComponent("ex) 2019.05.30", false),
-					new JLabel("평점:"), PlaceholderComponent.createPlaceholderTextComponent("ex) 9.1", false));
+			createInputFormForMovies();
 			break;
 		case "Screenings":
-			addInputFields(currentFrame, new JLabel("영화번호:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("상영관번호:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("상영시작일:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 2024.01.01", false), new JLabel("상영일:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 2024.01.03", false), new JLabel("상영회차:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("상영시작시간:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 10:00", false));
+			createInputFormForScreenings();
 			break;
 		case "Theaters":
-			addInputFields(currentFrame, new JLabel("상영관번호:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("좌석수:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 100", false), new JLabel("상영관사용여부:"),
-					new JCheckBox(), new JLabel("가로좌석수:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 10", false), new JLabel("세로좌석수:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 10", false));
+			createInputFormForTheaters();
 			break;
 		case "Tickets":
-			addInputFields(currentFrame, new JLabel("상영일정번호:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("상영일:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 2024.01.03", false), new JLabel("상영관번호:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("좌석번호:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("예매번호:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("발권여부:"),
-					new JCheckBox(), new JLabel("표준가격:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 10000", false), new JLabel("판매가격:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 9000", false));
+			createInputFormForTickets();
 			break;
 		case "Seats":
-			addInputFields(currentFrame, new JLabel("상영관번호:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("상영일:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 2024.01.03", false), new JLabel("좌석사용여부:"),
-					new JCheckBox());
+			createInputFormForSeats();
 			break;
 		case "Customers":
-			addInputFields(currentFrame, new JLabel("회원아이디:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) kim123", false), new JLabel("고객:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 김세종", false), new JLabel("휴대폰번호:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 010-1234-5678", false),
-					new JLabel("전자메일주소:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) sejong@sju.ac.kr", false));
+			createInputFormForCustomers();
 			break;
 		case "Bookings":
-			addInputFields(currentFrame, new JLabel("결제방법:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 카드", false), new JLabel("결제상태:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 완료", false), new JLabel("결제금액:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 9000", false), new JLabel("회원아이디:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 1", false), new JLabel("결제 일자:"),
-					PlaceholderComponent.createPlaceholderTextComponent("ex) 2024.01.02", false));
+			createInputFormForBookings();
 			break;
 		default:
 			break;
 		}
 	}
 
-	private void saveData(ActionEvent e, String tableName) {
-		try {
-			String query = generateInsertQuery(tableName);
-			PreparedStatement statement = connection.prepareStatement(query);
-			setValues(statement, currentFrame);
-			statement.executeUpdate();
-			JOptionPane.showMessageDialog(this, "데이터가 성공적으로 저장되었습니다.");
-		} catch (SQLException ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "데이터 저장 중 오류가 발생했습니다.");
-		}
-	}
-
-	private String generateInsertQuery(String tableName) {
-		switch (tableName) {
-		case "Movies":
-			return "INSERT INTO Movies (MovieID, Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		case "Screenings":
-			return "INSERT INTO Screenings (ScreeningID, MovieID, TheaterID, ScreeningDate, SessionNumber, StartTime, EndTime) VALUES (?, ?, ?, ?, ?, ?, ?)";
-		case "Theaters":
-			return "INSERT INTO Theaters (TheaterID, ScreeningDate, NumberOfSeats, TheaterUse, HorizontalSeats, VerticalSeats) VALUES (?, ?, ?, ?, ?, ?)";
-		case "Tickets":
-			return "INSERT INTO Tickets (TicketID, ScreeningID, ScreeningDate, TheaterID, SeatID, BookingID, IsTicketing, StandardPrice, SalePrice) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		case "Seats":
-			return "INSERT INTO Seats (SeatID, TheaterID, ScreeningDate, IsActive) VALUES (?, ?, ?, ?)";
-		case "Customers":
-			return "INSERT INTO Customers (CustomerID, CustomerName, PhoneNumber, Email) VALUES (?, ?, ?, ?)";
-		case "Bookings":
-			return "INSERT INTO Bookings (BookingID, Payment, PaymentStatus, Amount, CustomerID, PaymentDate) VALUES (?, ?, ?, ?, ?, ?)";
-		default:
-			throw new IllegalArgumentException("알 수 없는 테이블 이름: " + tableName);
-		}
-	}
-
-	private void setValues(PreparedStatement statement, JFrame frame) throws SQLException {
-		Component[] components = frame.getContentPane().getComponents();
-		int index = 1;
-		for (Component component : components) {
-			if (component instanceof JTextField) {
-				JTextField textField = (JTextField) component;
-				statement.setString(index++,
-						textField.getText().equals(textField.getForeground().equals(Color.GRAY)) ? ""
-								: textField.getText());
-			} else if (component instanceof JTextArea) {
-				JTextArea textArea = (JTextArea) component;
-				statement.setString(index++, textArea.getText().equals(textArea.getForeground().equals(Color.GRAY)) ? ""
-						: textArea.getText());
-			} else if (component instanceof JCheckBox) {
-				statement.setBoolean(index++, ((JCheckBox) component).isSelected());
-			}
-		}
-	}
-
-	private void addInputFields(JFrame frame, Component... components) {
-		JPanel inputPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(5, 5, 5, 5); // 컴포넌트 간의 여백 설정
+	private void createInputFormForMovies() {
+		// 필드 초기화
+		JTextField movieNameField = new JTextField();
+		JTextField durationField = new JTextField();
+		JTextField ratingField = new JTextField();
+		JTextField directorField = new JTextField();
+		JTextField actorsField = new JTextField();
+		JTextField genreField = new JTextField();
+		JTextField synopsisField = new JTextField();
+		JTextField releaseDateField = new JTextField();
+		JTextField ratingValueField = new JTextField();
 
 		// 입력 필드 추가
-		for (int i = 0; i < components.length; i++) {
-			gbc.gridx = 0;
-			gbc.gridy = i;
-			gbc.weightx = 1.0; // 수평 방향으로 공간을 차지하도록 설정
-			gbc.weighty = 0.0; // 수직 방향으로는 공간을 차지하지 않도록 설정
-			gbc.gridwidth = GridBagConstraints.REMAINDER; // 한 줄 전체를 차지하도록 설정
-			inputPanel.add(components[i], gbc);
+		addInputFields(currentFrame, new JLabel("영화명:"), movieNameField, new JLabel("상영시간(분):"), durationField,
+				new JLabel("상영등급:"), ratingField, new JLabel("감독명:"), directorField, new JLabel("배우:"), actorsField,
+				new JLabel("장르:"), genreField, new JLabel("영화소개:"), synopsisField, new JLabel("개봉일자:"),
+				releaseDateField, new JLabel("평점:"), ratingValueField);
+
+		// 버튼 추가
+		JPanel buttonPanel = createButtonPanel(e -> {
+			// 저장 버튼 액션
+			String movieName = movieNameField.getText();
+			int duration = Integer.parseInt(durationField.getText());
+			String rating = ratingField.getText();
+			String director = directorField.getText();
+			String actors = actorsField.getText();
+			String genre = genreField.getText();
+			String synopsis = synopsisField.getText();
+			String releaseDate = releaseDateField.getText();
+			double ratingValue = Double.parseDouble(ratingValueField.getText());
+
+			// 영화 정보 처리 로직 추가
+		}, e -> currentFrame.dispose());
+
+		currentFrame.add(buttonPanel);
+	}
+
+	private void createInputFormForScreenings() {
+		JTextField movieNumberField = new JTextField();
+		JTextField theaterNumberField = new JTextField();
+		JTextField startDateField = new JTextField();
+		JTextField screeningDateField = new JTextField();
+		JTextField sessionField = new JTextField();
+		JTextField startTimeField = new JTextField();
+
+		addInputFields(currentFrame, new JLabel("영화번호:"), movieNumberField, new JLabel("상영관번호:"), theaterNumberField,
+				new JLabel("상영시작일:"), startDateField, new JLabel("상영일:"), screeningDateField, new JLabel("상영회차:"),
+				sessionField, new JLabel("상영시작시간:"), startTimeField);
+
+		JPanel buttonPanel = createButtonPanel(e -> {
+			int movieNumber = Integer.parseInt(movieNumberField.getText());
+			int theaterNumber = Integer.parseInt(theaterNumberField.getText());
+			String startDate = startDateField.getText();
+			String screeningDate = screeningDateField.getText();
+			int session = Integer.parseInt(sessionField.getText());
+			String startTime = startTimeField.getText();
+
+			// 상영 정보 처리 로직 추가
+		}, e -> currentFrame.dispose());
+
+		currentFrame.add(buttonPanel);
+	}
+
+	private void createInputFormForTheaters() {
+		JTextField theaterNumField = new JTextField();
+		JTextField seatCountField = new JTextField();
+		JCheckBox theaterUseCheckBox = new JCheckBox();
+		JTextField horizontalSeatsField = new JTextField();
+		JTextField verticalSeatsField = new JTextField();
+
+		addInputFields(currentFrame, new JLabel("상영관번호:"), theaterNumField, new JLabel("좌석수:"), seatCountField,
+				new JLabel("상영관사용여부:"), theaterUseCheckBox, new JLabel("가로좌석수:"), horizontalSeatsField,
+				new JLabel("세로좌석수:"), verticalSeatsField);
+
+		JPanel buttonPanel = createButtonPanel(e -> {
+			int theaterNum = Integer.parseInt(theaterNumField.getText());
+			int seatCount = Integer.parseInt(seatCountField.getText());
+			boolean theaterUse = theaterUseCheckBox.isSelected();
+			int horizontalSeats = Integer.parseInt(horizontalSeatsField.getText());
+			int verticalSeats = Integer.parseInt(verticalSeatsField.getText());
+
+			// 상영관 정보 처리 로직 추가
+		}, e -> currentFrame.dispose());
+
+		currentFrame.add(buttonPanel);
+	}
+
+	private void createInputFormForTickets() {
+		JTextField scheduleNumberField = new JTextField();
+		JTextField screeningDateField = new JTextField();
+		JTextField theaterNumberField = new JTextField();
+		JTextField seatNumberField = new JTextField();
+		JTextField bookingNumberField = new JTextField();
+		JCheckBox ticketIssuedCheckBox = new JCheckBox();
+		JTextField standardPriceField = new JTextField();
+		JTextField sellingPriceField = new JTextField();
+
+		addInputFields(currentFrame, new JLabel("상영일정번호:"), scheduleNumberField, new JLabel("상영일:"), screeningDateField,
+				new JLabel("상영관번호:"), theaterNumberField, new JLabel("좌석번호:"), seatNumberField, new JLabel("예매번호:"),
+				bookingNumberField, new JLabel("발권여부:"), ticketIssuedCheckBox, new JLabel("표준가격:"), standardPriceField,
+				new JLabel("판매가격:"), sellingPriceField);
+
+		JPanel buttonPanel = createButtonPanel(e -> {
+			int scheduleNumber = Integer.parseInt(scheduleNumberField.getText());
+			String screeningDate = screeningDateField.getText();
+			int theaterNumber = Integer.parseInt(theaterNumberField.getText());
+			int seatNumber = Integer.parseInt(seatNumberField.getText());
+			int bookingNumber = Integer.parseInt(bookingNumberField.getText());
+			boolean ticketIssued = ticketIssuedCheckBox.isSelected();
+			int standardPrice = Integer.parseInt(standardPriceField.getText());
+			int sellingPrice = Integer.parseInt(sellingPriceField.getText());
+
+			// 티켓 정보 처리 로직 추가
+		}, e -> currentFrame.dispose());
+
+		currentFrame.add(buttonPanel);
+	}
+
+	private void createInputFormForSeats() {
+		JTextField theaterNumberField = new JTextField();
+		JTextField screeningDateField = new JTextField();
+		JCheckBox seatUseCheckBox = new JCheckBox();
+
+		addInputFields(currentFrame, new JLabel("상영관번호:"), theaterNumberField, new JLabel("상영일:"), screeningDateField,
+				new JLabel("좌석사용여부:"), seatUseCheckBox);
+
+		JPanel buttonPanel = createButtonPanel(e -> {
+			int theaterNumber = Integer.parseInt(theaterNumberField.getText());
+			String screeningDate = screeningDateField.getText();
+			boolean seatUse = seatUseCheckBox.isSelected();
+
+			// 좌석 정보 처리 로직 추가
+		}, e -> currentFrame.dispose());
+
+		currentFrame.add(buttonPanel);
+	}
+
+	private void createInputFormForCustomers() {
+		JTextField memberIdField = new JTextField();
+		JTextField customerNameField = new JTextField();
+		JTextField phoneNumberField = new JTextField();
+		JTextField emailField = new JTextField();
+
+		addInputFields(currentFrame, new JLabel("회원아이디:"), memberIdField, new JLabel("고객:"), customerNameField,
+				new JLabel("휴대폰번호:"), phoneNumberField, new JLabel("전자메일주소:"), emailField);
+		JPanel buttonPanel = createButtonPanel(e -> {
+			String memberId = memberIdField.getText();
+			String customerName = customerNameField.getText();
+			String phoneNumber = phoneNumberField.getText();
+			String email = emailField.getText();
+
+			// 고객 정보 처리 로직 추가
+		}, e -> currentFrame.dispose());
+
+		currentFrame.add(buttonPanel);
+	}
+
+	private void createInputFormForBookings() {
+		JTextField paymentMethodField = new JTextField();
+		JTextField paymentStatusField = new JTextField();
+		JTextField paymentAmountField = new JTextField();
+		JTextField memberIdField = new JTextField();
+		JTextField paymentDateField = new JTextField();
+
+		addInputFields(currentFrame, new JLabel("결제방법:"), paymentMethodField, new JLabel("결제상태:"), paymentStatusField,
+				new JLabel("결제금액:"), paymentAmountField, new JLabel("회원아이디:"), memberIdField, new JLabel("결제일자:"),
+				paymentDateField);
+
+		JPanel buttonPanel = createButtonPanel(e -> {
+			String paymentMethod = paymentMethodField.getText();
+			String paymentStatus = paymentStatusField.getText();
+			int paymentAmount = Integer.parseInt(paymentAmountField.getText());
+			String memberId = memberIdField.getText();
+			String paymentDate = paymentDateField.getText();
+
+			// 예약 정보 처리 로직 추가
+		}, e -> currentFrame.dispose());
+
+		currentFrame.add(buttonPanel);
+	}
+
+	private void addInputFields(JFrame frame, JComponent... components) {
+		for (JComponent component : components) {
+			frame.add(component);
 		}
+	}
 
-		// 저장 버튼 추가
+	private JPanel createButtonPanel(ActionListener saveAction, ActionListener cancelAction) {
+		JPanel buttonPanel = new JPanel();
+
 		JButton saveButton = new JButton("저장");
-		saveButton.addActionListener(e -> saveData(e, frame.getTitle().substring(3))); // frame title is "추가 " +
-																						// tableName
-		gbc.gridy = components.length; // 저장 버튼의 위치 설정
-		inputPanel.add(saveButton, gbc);
+		saveButton.addActionListener(saveAction);
 
-		// 취소 버튼 추가
 		JButton cancelButton = new JButton("취소");
-		cancelButton.addActionListener(e -> frame.dispose());
-		gbc.gridy = components.length + 1; // 취소 버튼의 위치 설정
-		inputPanel.add(cancelButton, gbc);
+		cancelButton.addActionListener(cancelAction);
 
-		frame.add(inputPanel); // 입력 패널을 프레임에 추가
-		frame.pack(); // 프레임 크기 조정
-		frame.setLocationRelativeTo(null); // 프레임을 화면 중앙에 배치
+		buttonPanel.add(saveButton);
+		buttonPanel.add(cancelButton);
+
+		return buttonPanel;
 	}
 
 	private JFrame createFrame(String title, int width, int height) {
 		JFrame frame = new JFrame(title);
 		frame.setSize(width, height);
-		frame.setLayout(new GridLayout(0, 2));
+		frame.setLayout(new GridLayout(0, 1));
 		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
 		return frame;
 	}
+
 }
