@@ -252,13 +252,6 @@ public class AdminPanel extends JPanel {
         	    "(11, 11, '2023-11-01', '2023-11-02', 1, '20:00:00'), " +
         	    "(12, 12, '2023-12-01', '2023-12-02', 1, '21:00:00')";
         
-        /*
-        String insertSeats = 
-        	    "INSERT INTO Seats (TheaterID, ScreeningID, SeatID, IsActive) " +
-        	    "SELECT t.TheaterID, s.ScreeningID, (t.TheaterID - 1) * 12 + (s.ScreeningID - 1) % 12 + 1, FALSE " +
-        	    "FROM Theaters t, Screenings s";
-		*/
-        
         String insertTheaterUse = 
         	    "INSERT INTO TheaterUse (TheaterID, ScreeningID, TheaterUse) " +
         	    "SELECT t.TheaterID, s.ScreeningID, FALSE " +
@@ -287,19 +280,24 @@ public class AdminPanel extends JPanel {
 
         String insertTickets = 
         	    "INSERT INTO Tickets (ScreeningID, SeatID, BookingID, IsTicketing, StandardPrice, SalePrice) VALUES " +
-        	    "(1, 1, 1, TRUE, 100, 90), " +
-        	    "(2, 2, 2, TRUE, 100, 90), " +
-        	    "(3, 3, 3, TRUE, 100, 90), " +
-        	    "(4, 4, 4, TRUE, 100, 90), " +
-        	    "(5, 5, 5, TRUE, 100, 90), " +
-        	    "(6, 6, 6, TRUE, 100, 90), " +
-        	    "(7, 7, 7, TRUE, 100, 90), " +
-        	    "(8, 8, 8, TRUE, 100, 90), " +
-        	    "(9, 9, 9, TRUE, 100, 90), " +
-        	    "(10, 10, 10, TRUE, 100, 90), " +
-        	    "(11, 11, 11, TRUE, 100, 90), " +
-        	    "(12, 12, 12, TRUE, 100, 90)";
-
+        	    "(1, 1, 1, TRUE, 15000, 10000), " +
+        	    "(2, 21, 2, TRUE, 15000, 10000), " +
+        	    "(3, 41, 3, TRUE, 15000, 10000), " +
+        	    "(4, 61, 4, TRUE, 15000, 10000), " +
+        	    "(5, 81, 5, TRUE, 15000, 10000), " +
+        	    "(6, 101, 6, TRUE, 15000, 10000), " +
+        	    "(7, 121, 7, TRUE, 15000, 10000), " +
+        	    "(8, 141, 8, TRUE, 15000, 10000), " +
+        	    "(9, 161, 9, TRUE, 15000, 10000), " +
+        	    "(10, 181, 10, TRUE, 15000, 10000), " +
+        	    "(11, 201, 11, TRUE, 15000, 10000), " +
+        	    "(12, 221, 12, TRUE, 15000, 10000)";
+        
+        String updateSeats = 
+                "UPDATE Seats " +
+                "SET IsActive = TRUE " +
+                "WHERE SeatID IN (SELECT SeatID FROM Tickets)";
+        
         String insertMovieActors = 
         	    "INSERT INTO MovieActors (MovieID, ActorID) VALUES " +
         	    "(1, 1), (1, 2), (1, 3), " +
@@ -330,8 +328,16 @@ public class AdminPanel extends JPanel {
             
             stmt.executeUpdate(insertTheaterUse);
             stmt.executeUpdate(updateTheaterUse);
+            
             stmt.executeUpdate(insertBookings);
+            
+            /*
+              Ticket 샘플데이터 입력 시 
+              Ticket에 있는 SeatID -> 활성화, Seats테이블에서 해당 하는 SeatID의 IsActive를 true로 업데이트
+             */ 
             stmt.executeUpdate(insertTickets);
+            stmt.executeUpdate(updateSeats);
+            
             stmt.executeUpdate(insertMovieActors);
  
         } finally {
@@ -480,10 +486,6 @@ public class AdminPanel extends JPanel {
         }
     }
     
-    
-    
-    
-
     // MovieInputComponent, MovieDeleteComponent, MovieUpdateComponent 클래스의
     // 생성자 및 메서드는 실제 구현에 따라 내용을 추가해야 함.
 }
