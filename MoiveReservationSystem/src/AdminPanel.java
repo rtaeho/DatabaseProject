@@ -141,7 +141,6 @@ public class AdminPanel extends JPanel {
 						+ "    FOREIGN KEY (ActorID) REFERENCES Actors(ActorID) ON DELETE CASCADE ON UPDATE CASCADE"
 						+ ");" };
 
-<<<<<<< Updated upstream
 		Statement stmt = null;
 		try {
 			stmt = dbConnection.createStatement();
@@ -154,20 +153,11 @@ public class AdminPanel extends JPanel {
 			}
 		}
 	}
-=======
-    private void insertSampleData() throws SQLException {
-        String insertActors = 
-        	    "INSERT INTO Actors (ActorName) VALUES " +
-        	    "('마동석'), ('윤계상'), ('손석구'), ('최민식'), " +
-        	    "('류승룡'), ('이정재'), ('전지현'), ('강동원'), " +
-        	    "('황정민'), ('유아인'), ('배두나'), ('박보영')";
->>>>>>> Stashed changes
 
 	private void insertSampleData() throws SQLException {
 		String insertActors = "INSERT INTO Actors (ActorName) VALUES " + "('마동석'), ('윤계상'), ('손석구'), ('최민식'), "
 				+ "('류승룡'), ('이정재'), ('전지현'), ('강동원'), " + "('황정민'), ('유아인'), ('배두나'), ('박보영')";
 
-<<<<<<< Updated upstream
 		String insertCustomers = "INSERT INTO Customers (CustomerID, CustomerName, PhoneNumber, Email) VALUES "
 				+ "('user1', 'Customer 1', '123-456-7890', 'customer1@example.com'), "
 				+ "('user2', 'Customer 2', '123-456-7891', 'customer2@example.com'), "
@@ -181,22 +171,6 @@ public class AdminPanel extends JPanel {
 				+ "('user10', 'Customer 10', '123-456-7899', 'customer10@example.com'), "
 				+ "('user11', 'Customer 11', '123-456-7800', 'customer11@example.com'), "
 				+ "('user12', 'Customer 12', '123-456-7801', 'customer12@example.com')";
-=======
-        String insertMovies = 
-        	    "INSERT INTO Movies (Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) VALUES " +
-        	    "('범죄도시1', 120, 'PG-13', '마동석', 'Action', 'Introduction 1', '2023-01-01', 8.5), " +
-        	    "('범죄도시2', 110, 'R', '마동석', 'Action', 'Introduction 2', '2023-02-01', 7.5), " +
-        	    "('명량', 130, 'PG', '김한민', 'Action', 'Introduction 3', '2023-03-01', 6.5), " +
-        	    "('도둑들', 140, 'PG-13', '최동훈', 'Comedy', 'Introduction 4', '2023-04-01', 8.0), " +
-        	    "('엽기적인 그녀', 150, 'R', '곽재용', 'Drama', 'Introduction 5', '2023-05-01', 9.0), " +
-        	    "('골든 슬럼버', 95, 'PG', '노동석', 'Drama', 'Introduction 6', '2023-06-01', 7.0), " +
-        	    "('전우치', 105, 'PG-13', '최동훈', 'Comedy', 'Introduction 7', '2023-07-01', 6.0), " +
-        	    "('검사외전', 115, 'R', '이일형', 'Comedy', 'Introduction 8', '2023-08-01', 5.5), " +
-        	    "('신세계', 125, 'PG', '박훈정', 'Action', 'Introduction 9', '2023-09-01', 8.0), " +
-        	    "('베테랑', 135, 'PG-13', '류승완', 'Action', 'Introduction 10', '2023-10-01', 7.5), " +
-        	    "('괴물', 145, 'R', '봉준호', 'Horror', 'Introduction 11', '2023-11-01', 9.5), " +
-        	    "('과속스캔들', 155, 'PG', '강형철', 'Drama', 'Introduction 12', '2023-12-01', 6.5)";
->>>>>>> Stashed changes
 
 		String insertMovies = "INSERT INTO Movies (Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) VALUES "
 				+ "('범죄도시1', 120, 'PG-13', '마동석', 'Action', 'Introduction 1', '2023-01-01', 8.5), "
@@ -212,33 +186,10 @@ public class AdminPanel extends JPanel {
 				+ "('괴물', 145, 'R', '봉준호', 'Horror', 'Introduction 11', '2023-11-01', 9.5), "
 				+ "('과속스캔들', 155, 'PG', '강형철', 'Drama', 'Introduction 12', '2023-12-01', 6.5)";
 
-<<<<<<< Updated upstream
 		String insertTheaters = "INSERT INTO Theaters (TheaterID, NumberOfSeats, HorizontalSeats, VerticalSeats) VALUES "
 				+ "(1, 20, 5, 4), (2, 20, 5, 4), (3, 20, 5, 4), (4, 20, 5, 4), "
 				+ "(5, 20, 5, 4), (6, 20, 5, 4), (7, 20, 5, 4), (8, 20, 5, 4), "
 				+ "(9, 20, 5, 4), (10, 20, 5, 4), (11, 20, 5, 4), (12, 20, 5, 4)";
-=======
-        String insertScreenings = 
-        	    "INSERT INTO Screenings (MovieID, TheaterID, ScreeningStartDate, ScreeningDate, SessionNumber, StartTime) VALUES " +
-        	    "(1, 1, '2023-01-01', '2024-01-02', 1, '10:00:00'), " +
-        	    "(2, 2, '2023-02-01', '2024-02-02', 1, '11:00:00'), " +
-        	    "(3, 3, '2023-03-01', '2024-03-02', 1, '12:00:00'), " +
-        	    "(4, 4, '2023-04-01', '2024-04-02', 1, '13:00:00'), " +
-        	    "(5, 5, '2023-05-01', '2024-05-02', 1, '14:00:00'), " +
-        	    "(6, 6, '2023-06-01', '2024-06-02', 1, '15:00:00'), " +
-        	    "(7, 7, '2023-07-01', '2024-07-02', 1, '16:00:00'), " +
-        	    "(8, 8, '2023-08-01', '2024-08-02', 1, '17:00:00'), " +
-        	    "(9, 9, '2023-09-01', '2024-09-02', 1, '18:00:00'), " +
-        	    "(10, 10, '2023-10-01', '2024-10-02', 1, '19:00:00'), " +
-        	    "(11, 11, '2023-11-01', '2024-11-02', 1, '20:00:00'), " +
-        	    "(12, 12, '2023-12-01', '2024-12-02', 1, '21:00:00')";
-        
-        String insertTheaterUse = 
-        	    "INSERT INTO TheaterUse (TheaterID, ScreeningID, TheaterUse) " +
-        	    "SELECT t.TheaterID, s.ScreeningID, FALSE " +
-        	    "FROM Theaters t " +
-        	    "CROSS JOIN Screenings s";
->>>>>>> Stashed changes
 
 		String insertScreenings = "INSERT INTO Screenings (MovieID, TheaterID, ScreeningStartDate, ScreeningDate, SessionNumber, StartTime) VALUES "
 				+ "(1, 1, '2023-01-01', '2024-01-02', 1, '10:00:00'), "
@@ -254,31 +205,13 @@ public class AdminPanel extends JPanel {
 				+ "(11, 11, '2023-11-01', '2024-11-02', 1, '20:00:00'), "
 				+ "(12, 12, '2023-12-01', '2024-12-02', 1, '21:00:00')";
 
-<<<<<<< Updated upstream
 		String insertTheaterUse = "INSERT INTO TheaterUse (TheaterID, ScreeningID, TheaterUse) "
 				+ "SELECT t.TheaterID, s.ScreeningID, FALSE " + "FROM Theaters t " + "CROSS JOIN Screenings s";
-=======
-        String insertBookings = 
-        	    "INSERT INTO Bookings (Payment, PaymentStatus, Amount, CustomerID, PaymentDate) VALUES " +
-        	    "('신한카드', '일시불', 13500, 'user1', '2023-01-15'), " +
-        	    "('국민카드', '2개월 할부', 15000, 'user1', '2023-02-20'), " +
-        	    "('무통장입금', '일시불', 15000, 'user3', '2023-03-10'), " +
-        	    "('신한카드', '일시불', 13500, 'user4', '2023-04-05'), " +
-        	    "('삼성카드', '일시불', 15000, 'user5', '2023-05-25'), " +
-        	    "('삼성카드', '3개월 할부', 15000, 'user6', '2023-06-15'), " +
-        	    "('신한카드', '일시불', 13500, 'user7', '2023-07-30'), " +
-        	    "('무통장입금', '일시불', 15000, 'user8', '2023-08-18'), " +
-        	    "('영화관람권', '일시불', 15000, 'user9', '2023-09-22'), " +
-        	    "('농협카드', '2개월 할부', 15000, 'user10', '2023-10-05'), " +
-        	    "('계좌이체', '일시불', 15000, 'user11', '2023-11-11'), " +
-        	    "('영화관람권', '일시불', 15000, 'user12', '2023-12-31')";
->>>>>>> Stashed changes
 
 		String updateTheaterUse = "UPDATE TheaterUse tu "
 				+ "JOIN Screenings s ON tu.TheaterID = s.TheaterID AND tu.ScreeningID = s.ScreeningID "
 				+ "SET tu.TheaterUse = TRUE";
 
-<<<<<<< Updated upstream
 		String insertBookings = "INSERT INTO Bookings (Payment, PaymentStatus, Amount, CustomerID, PaymentDate) VALUES "
 				+ "('신한카드', '일시불', 13500, 'user1', '2023-01-15'), "
 				+ "('국민카드', '2개월 할부', 15000, 'user1', '2023-02-20'), "
@@ -290,50 +223,14 @@ public class AdminPanel extends JPanel {
 				+ "('농협카드', '2개월 할부', 15000, 'user10', '2023-10-05'), "
 				+ "('계좌이체', '일시불', 15000, 'user11', '2023-11-11'), "
 				+ "('영화관람권', '일시불', 15000, 'user12', '2023-12-31')";
-=======
-        String insertTickets = 
-        	    "INSERT INTO Tickets (ScreeningID, SeatID, BookingID, IsTicketing, StandardPrice, SalePrice) VALUES " +
-        	    "(1, 1, 1, TRUE, 15000, 13500), " +
-        	    "(2, 21, 2, TRUE, 15000, 10000), " +
-        	    "(3, 41, 3, TRUE, 15000, 10000), " +
-        	    "(4, 61, 4, TRUE, 15000, 13500), " +
-        	    "(5, 81, 5, TRUE, 15000, 10000), " +
-        	    "(6, 101, 6, TRUE, 15000, 10000), " +
-        	    "(7, 121, 7, TRUE, 15000, 13500), " +
-        	    "(8, 141, 8, TRUE, 15000, 10000), " +
-        	    "(9, 161, 9, TRUE, 15000, 10000), " +
-        	    "(10, 181, 10, TRUE, 15000, 10000), " +
-        	    "(11, 201, 11, TRUE, 15000, 10000), " +
-        	    "(12, 221, 12, TRUE, 15000, 10000)";
-        
-        String updateSeats = 
-                "UPDATE Seats " +
-                "SET IsActive = TRUE " +
-                "WHERE SeatID IN (SELECT SeatID FROM Tickets)";
-        
-        String insertMovieActors = 
-        	    "INSERT INTO MovieActors (MovieID, ActorID) VALUES " +
-        	    "(1, 1), (2, 1), " +
-        	    "(1, 2), (6, 2), " +
-        	    "(2, 3), " +
-        	    "(3, 4), " +
-        	    "(3, 5), " +
-        	    "(4, 6), " +
-        	    "(4, 7), (5, 7), " +
-        	    "(6, 8), (7, 8), (8, 8), " +
-        	    "(8, 9), (9, 9), (10, 9), " +
-        	    "(10, 10), " +
-        	    "(11, 11), " +
-        	    "(12, 12)";
->>>>>>> Stashed changes
 
 		String insertTickets = "INSERT INTO Tickets (ScreeningID, SeatID, BookingID, IsTicketing, StandardPrice, SalePrice) VALUES "
-				+ "(1, 1, 1, TRUE, 15000, 13500), " + "(2, 21, 2, TRUE, 15000, 10000), "
-				+ "(3, 41, 3, TRUE, 15000, 10000), " + "(4, 61, 4, TRUE, 15000, 13500), "
-				+ "(5, 81, 5, TRUE, 15000, 10000), " + "(6, 101, 6, TRUE, 15000, 10000), "
-				+ "(7, 121, 7, TRUE, 15000, 13500), " + "(8, 141, 8, TRUE, 15000, 10000), "
-				+ "(9, 161, 9, TRUE, 15000, 10000), " + "(10, 181, 10, TRUE, 15000, 10000), "
-				+ "(11, 201, 11, TRUE, 15000, 10000), " + "(12, 221, 12, TRUE, 15000, 10000)";
+				+ "(1, 1, 1, TRUE, 15000, 13500), " + "(2, 21, 2, TRUE, 15000, 15000), "
+				+ "(3, 41, 3, TRUE, 15000, 15000), " + "(4, 61, 4, TRUE, 15000, 13500), "
+				+ "(5, 81, 5, TRUE, 15000, 15000), " + "(6, 101, 6, TRUE, 15000, 15000), "
+				+ "(7, 121, 7, TRUE, 15000, 13500), " + "(8, 141, 8, TRUE, 15000, 15000), "
+				+ "(9, 161, 9, TRUE, 15000, 15000), " + "(10, 181, 10, TRUE, 15000, 15000), "
+				+ "(11, 201, 11, TRUE, 15000, 15000), " + "(12, 221, 12, TRUE, 15000, 15000)";
 
 		String updateSeats = "UPDATE Seats " + "SET IsActive = TRUE " + "WHERE SeatID IN (SELECT SeatID FROM Tickets)";
 
@@ -511,7 +408,7 @@ public class AdminPanel extends JPanel {
 			}
 		}
 	}
-
+	// testing
 	// MovieInputComponent, MovieDeleteComponent, MovieUpdateComponent 클래스의
 	// 생성자 및 메서드는 실제 구현에 따라 내용을 추가해야 함.
 }
