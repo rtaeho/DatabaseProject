@@ -76,9 +76,15 @@ public class MovieInputComponent extends JFrame {
 		JTextField scoreField = new JTextField();
 		JTextField actorsField = new JTextField(); // 배우명 필드 추가
 
-		addInputFields(currentFrame, new JLabel("영화명:"), movieNameField, new JLabel("상영시간(분):"), durationField,
-				new JLabel("상영등급:"), ratingField, new JLabel("감독명:"), directorField, new JLabel("장르:"), genreField,
-				new JLabel("영화소개:"), introductionField, new JLabel("개봉일자:"), releaseDateField, new JLabel("평점:"),
+		addInputFields(currentFrame, 
+				new JLabel("영화명:"), movieNameField, 
+				new JLabel("상영시간(분):"), durationField,
+				new JLabel("상영등급:"), ratingField, 
+				new JLabel("감독명:"), directorField, 
+				new JLabel("장르:"), genreField,
+				new JLabel("영화소개:"), introductionField, 
+				new JLabel("개봉일자:"), releaseDateField, 
+				new JLabel("평점:"),
 				scoreField, new JLabel("배우명(쉼표로 구분):"), actorsField); // 배우명 필드 추가
 
 		JPanel buttonPanel = createButtonPanel(e -> {
@@ -165,9 +171,13 @@ public class MovieInputComponent extends JFrame {
 		JTextField sessionField = new JTextField();
 		JTextField startTimeField = new JTextField();
 
-		addInputFields(currentFrame, new JLabel("영화번호:"), movieNumberField, new JLabel("상영관번호:"), theaterNumberField,
-				new JLabel("상영시작일:"), startDateField, new JLabel("상영일:"), screeningDateField, new JLabel("상영회차:"),
-				sessionField, new JLabel("상영시작시간:"), startTimeField);
+		addInputFields(currentFrame, 
+				new JLabel("영화번호:"), movieNumberField, 
+				new JLabel("상영관번호:"), theaterNumberField,
+				new JLabel("상영시작일:"), startDateField, 
+				new JLabel("상영일:"), screeningDateField, 
+				new JLabel("상영회차:"),sessionField, 
+				new JLabel("상영시작시간:"), startTimeField);
 
 		JPanel buttonPanel = createButtonPanel(e -> {
 			int movieNumber = Integer.parseInt(movieNumberField.getText());
@@ -190,8 +200,11 @@ public class MovieInputComponent extends JFrame {
 		JTextField horizontalSeatsField = new JTextField();
 		JTextField verticalSeatsField = new JTextField();
 
-		addInputFields(currentFrame, new JLabel("상영관번호:"), theaterNumField, new JLabel("좌석수:"), seatCountField,
-				new JLabel("상영관사용여부:"), theaterUseCheckBox, new JLabel("가로좌석수:"), horizontalSeatsField,
+		addInputFields(currentFrame, 
+				new JLabel("상영관번호:"), theaterNumField, 
+				new JLabel("좌석수:"), seatCountField,
+				new JLabel("상영관사용여부:"), theaterUseCheckBox, 
+				new JLabel("가로좌석수:"), horizontalSeatsField,
 				new JLabel("세로좌석수:"), verticalSeatsField);
 
 		JPanel buttonPanel = createButtonPanel(e -> {
@@ -217,9 +230,14 @@ public class MovieInputComponent extends JFrame {
 		JTextField standardPriceField = new JTextField();
 		JTextField sellingPriceField = new JTextField();
 
-		addInputFields(currentFrame, new JLabel("상영일정번호:"), scheduleNumberField, new JLabel("상영일:"), screeningDateField,
-				new JLabel("상영관번호:"), theaterNumberField, new JLabel("좌석번호:"), seatNumberField, new JLabel("예매번호:"),
-				bookingNumberField, new JLabel("발권여부:"), ticketIssuedCheckBox, new JLabel("표준가격:"), standardPriceField,
+		addInputFields(currentFrame,
+				new JLabel("상영일정번호:"), scheduleNumberField,
+				new JLabel("상영일:"), screeningDateField,
+				new JLabel("상영관번호:"), theaterNumberField,
+				new JLabel("좌석번호:"), seatNumberField,
+				new JLabel("예매번호:"), bookingNumberField,
+				new JLabel("발권여부:"), ticketIssuedCheckBox,
+				new JLabel("표준가격:"), standardPriceField,
 				new JLabel("판매가격:"), sellingPriceField);
 
 		JPanel buttonPanel = createButtonPanel(e -> {
@@ -243,7 +261,9 @@ public class MovieInputComponent extends JFrame {
 		JTextField screeningDateField = new JTextField();
 		JCheckBox seatUseCheckBox = new JCheckBox();
 
-		addInputFields(currentFrame, new JLabel("상영관번호:"), theaterNumberField, new JLabel("상영일:"), screeningDateField,
+		addInputFields(currentFrame, 
+				new JLabel("상영관번호:"), theaterNumberField,
+				new JLabel("상영일:"), screeningDateField,
 				new JLabel("좌석사용여부:"), seatUseCheckBox);
 
 		JPanel buttonPanel = createButtonPanel(e -> {
@@ -263,8 +283,12 @@ public class MovieInputComponent extends JFrame {
 		JTextField phoneNumberField = new JTextField();
 		JTextField emailField = new JTextField();
 
-		addInputFields(currentFrame, new JLabel("회원아이디:"), memberIdField, new JLabel("고객:"), customerNameField,
-				new JLabel("휴대폰번호:"), phoneNumberField, new JLabel("전자메일주소:"), emailField);
+		addInputFields(currentFrame, 
+				new JLabel("회원아이디:"), memberIdField,
+				new JLabel("고객:"), customerNameField,
+				new JLabel("휴대폰번호:"), phoneNumberField,
+				new JLabel("전자메일주소:"), emailField);
+		
 		JPanel buttonPanel = createButtonPanel(e -> {
 			String memberId = memberIdField.getText();
 			String customerName = customerNameField.getText();
@@ -284,9 +308,12 @@ public class MovieInputComponent extends JFrame {
 		JTextField memberIdField = new JTextField();
 		JTextField paymentDateField = new JTextField();
 
-		addInputFields(currentFrame, new JLabel("결제방법:"), paymentMethodField, new JLabel("결제상태:"), paymentStatusField,
-				new JLabel("결제금액:"), paymentAmountField, new JLabel("회원아이디:"), memberIdField, new JLabel("결제일자:"),
-				paymentDateField);
+		addInputFields(currentFrame, 
+				new JLabel("결제방법:"), paymentMethodField,
+				new JLabel("결제상태:"), paymentStatusField,
+				new JLabel("결제금액:"), paymentAmountField,
+				new JLabel("회원아이디:"), memberIdField,
+				new JLabel("결제일자:"), paymentDateField);
 
 		JPanel buttonPanel = createButtonPanel(e -> {
 			String paymentMethod = paymentMethodField.getText();
