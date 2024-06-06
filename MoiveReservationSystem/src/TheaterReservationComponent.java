@@ -122,15 +122,17 @@ public class TheaterReservationComponent extends JFrame {
 		                public void actionPerformed(ActionEvent e) {
 		                	 int option = JOptionPane.showConfirmDialog(currentFrame, "예매하시겠습니까?", "예매 확인", JOptionPane.YES_NO_OPTION);
 		                     if (option == JOptionPane.YES_OPTION) {
-		                    	  showPaymentDialog(seatButton, seatID, screeningID);	                    	 
-	                                        	 
-		                         seatButton.setBackground(Color.RED);
-		                         seatButton.setText("예약됨");
-		                         Font boldFont = new Font(seatButton.getFont().getName(), Font.BOLD, 30);
-		                         seatButton.setFont(boldFont);
-		                         seatButton.setEnabled(false);	   
-		                         
-		                         Utils.showMessage("예매 완료되었습니다.");
+		                    	  int a = showPaymentDialog(seatButton, seatID, screeningID);	                    	 
+	                              
+		                    	 if(a == 1) {
+			                         seatButton.setBackground(Color.RED);
+			                         seatButton.setText("예약됨");
+			                         Font boldFont = new Font(seatButton.getFont().getName(), Font.BOLD, 30);
+			                         seatButton.setFont(boldFont);
+			                         seatButton.setEnabled(false);	   		                     
+			                         Utils.showMessage("예매 완료되었습니다.");
+		                    	 }
+
 		                         
 		                     } else {
 		                         // 사용자가 아니오를 선택한 경우
@@ -160,7 +162,7 @@ public class TheaterReservationComponent extends JFrame {
 			}
 		}
 	}
-    private void showPaymentDialog(JButton seatButton, int seatID, int screeningID) {
+    private int showPaymentDialog(JButton seatButton, int seatID, int screeningID) {
         // 결제 정보를 입력받는 다이얼로그 생성
         JTextField paymentField = new JTextField(10);
         JTextField paymentStatusField = new JTextField(10);
@@ -180,10 +182,18 @@ public class TheaterReservationComponent extends JFrame {
             String payment = paymentField.getText();
             String paymentStatus = paymentStatusField.getText();
             boolean isTicketing = isTicketingCheckBox.isSelected();
-
-            // 결제 정보 처리
-            processBooking(seatButton, screeningID, seatID, payment, paymentStatus, isTicketing);
+            
+            if (payment.isEmpty() || paymentStatus.isEmpty()) {
+                // 입력하지 않은 필드가 있을 경우 오류 메시지를 띄움
+                JOptionPane.showMessageDialog(currentFrame, "모든 결제 정보를 입력하세요.", "입력 오류", JOptionPane.ERROR_MESSAGE);
+                return 0;
+            } else {
+                // 결제 정보 처리
+                processBooking(seatButton, screeningID, seatID, payment, paymentStatus, isTicketing);
+                return 1;
+            }
         }
+        return 0;
     }
 
     private void processBooking(JButton seatButton, int screeningID, int seatID, String payment, String paymentStatus, boolean isTicketing) {
