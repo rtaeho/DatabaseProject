@@ -34,7 +34,7 @@ public class MovieDeleteComponent extends JFrame {
 	}
 
 	private void openDeleteForm(String tableName) {
-		currentFrame = createFrame("삭제 " + tableName, 600, 200);
+		currentFrame = createFrame("수정 " + tableName, 600, 200);
 		currentFrame.getContentPane().requestFocusInWindow();
 		createDeleteForm(tableName);
 	}
@@ -48,7 +48,7 @@ public class MovieDeleteComponent extends JFrame {
 		gbc.gridy = 0;
 		gbc.gridwidth = 2;
 
-		JLabel instructionLabel = new JLabel("WHERE 절 입력:");
+		JLabel instructionLabel = new JLabel("SQL 입력 : ");
 		currentFrame.add(instructionLabel, gbc);
 
 		gbc.gridy++;
@@ -66,7 +66,7 @@ public class MovieDeleteComponent extends JFrame {
 			String sql = "DELETE FROM " + tableName + " WHERE " + whereClause;
 			try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 				int rowsAffected = stmt.executeUpdate();
-				JOptionPane.showMessageDialog(currentFrame, "삭제된 행의 수: " + rowsAffected);
+				JOptionPane.showMessageDialog(currentFrame, "수정된 행의 수: " + rowsAffected);
 			} catch (SQLException ex) {
 				JOptionPane.showMessageDialog(currentFrame, "SQL 실행 오류: " + ex.getMessage(), "오류",
 						JOptionPane.ERROR_MESSAGE);
