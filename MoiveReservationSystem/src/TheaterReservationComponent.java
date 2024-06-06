@@ -94,55 +94,57 @@ public class TheaterReservationComponent extends JFrame {
 
 		try {
 			stmt = dbConnection.createStatement();
-			String seatIdQuery = "SELECT SeatID, isActive " + "FROM Seats " + "WHERE ScreeningID = " + screeningID
-					+ " AND TheaterID = " + theaterID;
 
-			resultSet = stmt.executeQuery(seatIdQuery);
+		    String seatIdQuery = "SELECT SeatID, isActive " +
+		            "FROM Seats " +
+		            "WHERE ScreeningID = " + screeningID + " AND TheaterID = " + theaterID;
+		            
+		    resultSet = stmt.executeQuery(seatIdQuery);
 
-			while (resultSet.next()) {
-				int seatID = resultSet.getInt("SeatID");
-				boolean isActive = resultSet.getBoolean("isActive");
+		    while (resultSet.next()) {
+		        int seatID = resultSet.getInt("SeatID");
+		        boolean isActive = resultSet.getBoolean("isActive");
 
-				// 좌석 버튼을 생성하고 SeatID를 설정
-				JButton seatButton = new JButton();
-				seatButton.setPreferredSize(new Dimension(40, 30));
+		        // 좌석 버튼을 생성하고 SeatID를 설정
+		        JButton seatButton = new JButton();
+		        seatButton.setPreferredSize(new Dimension(40, 30));
 
-				// isActive가 true인 경우 버튼을 비활성화하고 배경색을 빨간색으로 변경
-				if (isActive) {
-					seatButton.setEnabled(false);
-					seatButton.setBackground(Color.RED);
-					seatButton.setText("예약됨");
-					Font boldFont = new Font(seatButton.getFont().getName(), Font.BOLD, 30);
-					seatButton.setFont(boldFont);
-				} else {
-					seatButton.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							int option = JOptionPane.showConfirmDialog(currentFrame, "예매하시겠습니까?", "예매 확인",
-									JOptionPane.YES_NO_OPTION);
-							if (option == JOptionPane.YES_OPTION) {
-								// 사용자가 예를 선택한 경우
-								seatButton.setBackground(Color.RED);
-								seatButton.setText("예약됨");
-								Font boldFont = new Font(seatButton.getFont().getName(), Font.BOLD, 30);
-								seatButton.setFont(boldFont);
-								seatButton.setEnabled(false);
-								System.out.println("좌석 선택: " + seatID);
+		        // isActive가 true인 경우 버튼을 비활성화하고 배경색을 빨간색으로 변경
+		        if (isActive) {
+		            seatButton.setEnabled(false);
+		            seatButton.setBackground(Color.RED);
+		            seatButton.setText("예약됨");
+		            Font boldFont = new Font(seatButton.getFont().getName(), Font.BOLD, 30);
+		            seatButton.setFont(boldFont);
+		        } else {
+		            seatButton.addActionListener(new ActionListener() {
+		                @Override
+		                public void actionPerformed(ActionEvent e) {
+		                	 int option = JOptionPane.showConfirmDialog(currentFrame, "예매하시겠습니까?", "예매 확인", JOptionPane.YES_NO_OPTION);
+		                     if (option == JOptionPane.YES_OPTION) {
+		                    	  showPaymentDialog(seatButton, seatID, screeningID);	                    	 
+	                                        	 
+		                         seatButton.setBackground(Color.RED);
+		                         seatButton.setText("예약됨");
+		                         Font boldFont = new Font(seatButton.getFont().getName(), Font.BOLD, 30);
+		                         seatButton.setFont(boldFont);
+		                         seatButton.setEnabled(false);	   
+		                         
+		                         Utils.showMessage("예매 완료되었습니다.");
+		                         
+		                     } else {
+		                         // 사용자가 아니오를 선택한 경우
+		                         // 아무 작업도 하지 않음
+		                     }
+        	
+		                }   
+		            });
+		        }
 
-								// 결제 정보 입력 창 띄우기
-								showPaymentDialog(screeningID, seatID);
+		        // 좌석 버튼을 패널에 추가
+		        seatsPanel.add(seatButton);
+		    }
 
-							} else {
-								// 사용자가 아니오를 선택한 경우
-								// 아무 작업도 하지 않음
-							}
-						}
-					});
-				}
-
-				// 좌석 버튼을 패널에 추가
-				seatsPanel.add(seatButton);
-			}
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(null, "좌석 정보를 가져오는 중 오류가 발생했습니다: " + ex.getMessage(), "Error",
@@ -158,6 +160,77 @@ public class TheaterReservationComponent extends JFrame {
 			}
 		}
 	}
+    private void showPaymentDialog(JButton seatButton, int seatID, int screeningID) {
+        // 결제 정보를 입력받는 다이얼로그 생성
+        JTextField paymentField = new JTextField(10);
+        JTextField paymentStatusField = new JTextField(10);
+        JCheckBox isTicketingCheckBox = new JCheckBox("발권 여부");
+
+        JPanel paymentPanel = new JPanel();
+        paymentPanel.add(new JLabel("Payment:"));
+        paymentPanel.add(paymentField);
+        paymentPanel.add(Box.createHorizontalStrut(15)); // 간격 추가
+        paymentPanel.add(new JLabel("Payment Status:"));
+        paymentPanel.add(paymentStatusField);
+        paymentPanel.add(Box.createHorizontalStrut(15)); // 간격 추가
+        paymentPanel.add(isTicketingCheckBox);
+
+        int result = JOptionPane.showConfirmDialog(currentFrame, paymentPanel, "결제 정보 입력", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            String payment = paymentField.getText();
+            String paymentStatus = paymentStatusField.getText();
+            boolean isTicketing = isTicketingCheckBox.isSelected();
+
+            // 결제 정보 처리
+            processBooking(seatButton, screeningID, seatID, payment, paymentStatus, isTicketing);
+        }
+    }
+
+    private void processBooking(JButton seatButton, int screeningID, int seatID, String payment, String paymentStatus, boolean isTicketing) {
+        // 예매 처리 코드를 여기에 추가
+        // 예를 들어, 데이터베이스에 예매 내역을 추가하고 좌석 상태를 업데이트하는 코드 작성
+
+        // 예매 정보가 성공적으로 처리되었다면, 버튼 상태를 업데이트
+        seatButton.setBackground(Color.RED);
+        seatButton.setText("예약됨");
+        Font boldFont = new Font(seatButton.getFont().getName(), Font.BOLD, 30);
+        seatButton.setFont(boldFont);
+        seatButton.setEnabled(false);
+
+        // 결제 및 예매 정보 데이터베이스에 저장
+        try {
+            Statement stmt = dbConnection.createStatement();
+            
+            int standardPrice = 15000;
+            int salePrice = standardPrice;
+            
+            if(payment.equals("신한카드")) {
+            	salePrice = (int) (standardPrice * 0.9); // 신한카드로 결제시 10퍼 할인
+            }
+            
+            // Seats 테이블의 isActive 값을 True로 업데이트하는 쿼리
+            String updateSeatQuery = "UPDATE Seats SET isActive = true WHERE SeatID = " + seatID;
+            stmt.executeUpdate(updateSeatQuery);
+
+            // 예매 정보를 Bookings 테이블에 삽입하는 쿼리
+            String insertBookingQuery = "INSERT INTO Bookings (Payment, PaymentStatus, Amount, CustomerID, PaymentDate) VALUES ('" +
+                    payment + "', '" + paymentStatus + "', '" + salePrice + "', '" + "user1" + "', '" + today.toString() + "')";
+            stmt.executeUpdate(insertBookingQuery, Statement.RETURN_GENERATED_KEYS);
+
+            
+            // 추가적으로 필요한 티켓 정보 저장
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int bookingID = generatedKeys.getInt(1);
+                String insertTicketQuery = "INSERT INTO Tickets (ScreeningID, SeatID, BookingID, IsTicketing, StandardPrice, SalePrice) VALUES (" +
+                        screeningID + ", " + seatID + ", " + bookingID + ", " + isTicketing + ", " + standardPrice + ", " + salePrice + ")";
+                stmt.executeUpdate(insertTicketQuery);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 	// 사용자로부터 결제 정보를 입력받고 변수에 저장하는 메서드
 	private void showPaymentDialog(int screeningID, int seatID) {
