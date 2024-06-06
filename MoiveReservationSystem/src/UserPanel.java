@@ -22,16 +22,17 @@ public class UserPanel extends JPanel {
         add(buttonPanel, BorderLayout.NORTH);
 
         viewMoviesButton.addActionListener(e -> new MovieSearchComponent(dbConnection));
+        /* 예매한 영화 조회 -> 현재 user1 이므로 customerID가 user1인 예매정보만 가져오기 
+        *  검색 시 Bookings 테이블에서 customerID가 user1인 column들만 모아보기
+        *  customerID가 user1인 BookingID 값만 모으기
+        *  Tickets 테이블에서 BookingID 값으로 상영일정번호 찾기
+        *  상영일정번호로 영화번호 찾기
+        *  영화제목, 상영일정번호, 상영관번호 조합해서 띄우기?
+        */
         viewBookingsButton.addActionListener(e -> viewUserBookings());
         backButton.addActionListener(e -> Utils.switchToPanel(this, new MainPanel()));
     }
-    
-    private void showMovieList() {
-        // 영화 목록 조회 로직 구현
-        // 예를 들어, MovieListComponent 클래스의 인스턴스를 생성하고 화면에 표시
-    	
-    	    	
-    }
+   
 
     private void viewUserBookings() {
         // 예매한 영화 조회 로직 구현
