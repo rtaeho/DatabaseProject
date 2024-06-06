@@ -40,10 +40,28 @@ public class MovieDeleteComponent extends JFrame {
 	}
 
 	private void createDeleteForm(String tableName) {
-		JLabel instructionLabel = new JLabel("WHERE 절 입력 (예: movie_id = 1):");
-		JTextField whereField = new JTextField();
+		currentFrame.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.gridwidth = 2;
 
-		ActionListener saveAction = e -> {
+		JLabel instructionLabel = new JLabel("WHERE 절 입력:");
+		currentFrame.add(instructionLabel, gbc);
+
+		gbc.gridy++;
+		gbc.gridwidth = 2;
+		JTextField whereField = new JTextField(20);
+		currentFrame.add(whereField, gbc);
+
+		gbc.gridy++;
+		gbc.gridwidth = 1;
+		gbc.gridx = 0;
+
+		JButton saveButton = new JButton("저장");
+		saveButton.addActionListener(e -> {
 			String whereClause = whereField.getText();
 			String sql = "DELETE FROM " + tableName + " WHERE " + whereClause;
 			try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -53,35 +71,13 @@ public class MovieDeleteComponent extends JFrame {
 				JOptionPane.showMessageDialog(currentFrame, "SQL 실행 오류: " + ex.getMessage(), "오류",
 						JOptionPane.ERROR_MESSAGE);
 			}
-		};
+		});
+		currentFrame.add(saveButton, gbc);
 
-		ActionListener cancelAction = e -> currentFrame.dispose();
-
-		JPanel buttonPanel = createButtonPanel(saveAction, cancelAction);
-
-		currentFrame.setLayout(new GridLayout(3, 1));
-		addInputFields(currentFrame, instructionLabel, whereField, buttonPanel);
-	}
-
-	private void addInputFields(JFrame frame, JComponent... components) {
-		for (JComponent component : components) {
-			frame.add(component);
-		}
-	}
-
-	private JPanel createButtonPanel(ActionListener saveAction, ActionListener cancelAction) {
-		JPanel buttonPanel = new JPanel();
-
-		JButton saveButton = new JButton("저장");
-		saveButton.addActionListener(saveAction);
-
+		gbc.gridx++;
 		JButton cancelButton = new JButton("취소");
-		cancelButton.addActionListener(cancelAction);
-
-		buttonPanel.add(saveButton);
-		buttonPanel.add(cancelButton);
-
-		return buttonPanel;
+		cancelButton.addActionListener(e -> currentFrame.dispose());
+		currentFrame.add(cancelButton, gbc);
 	}
 
 	private JFrame createFrame(String title, int width, int height) {
@@ -93,5 +89,4 @@ public class MovieDeleteComponent extends JFrame {
 		frame.setLocationRelativeTo(null);
 		return frame;
 	}
-
 }
