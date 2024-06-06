@@ -511,7 +511,7 @@ public class AdminPanel extends JPanel {
 			}
 		}
 	}
-
+	// testing
 	// MovieInputComponent, MovieDeleteComponent, MovieUpdateComponent 클래스의
 	// 생성자 및 메서드는 실제 구현에 따라 내용을 추가해야 함.
 }
