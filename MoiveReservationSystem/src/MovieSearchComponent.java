@@ -179,7 +179,7 @@ public class MovieSearchComponent extends JFrame {
 		}
 	}
 
-	private void showScreeningList(int movieId) {
+	public void showScreeningList(int movieId) {
 		Statement stmt = null;
 		ResultSet resultSet = null;
 
@@ -260,8 +260,7 @@ public class MovieSearchComponent extends JFrame {
 					int sessionNumber = (int) model.getValueAt(selectedRow, 5);
 					Time startTime = (Time) model.getValueAt(selectedRow, 6);
 
-					new TheaterReservationComponent(dbConnection, screeningID, movieID, theaterID, screeningStartDate,
-							screeningDate, sessionNumber, startTime);
+					new TheaterReservationComponent(dbConnection, screeningID, theaterID, screeningDate);
 
 				} else {
 					JOptionPane.showMessageDialog(frame, "상영일정을 선택하세요.", "예매 오류", JOptionPane.ERROR_MESSAGE);
