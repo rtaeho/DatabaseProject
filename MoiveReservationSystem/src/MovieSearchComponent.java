@@ -158,7 +158,8 @@ public class MovieSearchComponent extends JFrame {
 	                int movieID = (int) model.getValueAt(selectedRow, 0);
 	                String movieTitle = (String) model.getValueAt(selectedRow, 1);
 	                // 여기서 예매 처리 로직을 구현하세요.
-	                JOptionPane.showMessageDialog(frame, movieTitle + " 예매 완료!", "예매 성공", JOptionPane.INFORMATION_MESSAGE);
+	                showScreeningList(movieID);
+	      
 	            } else {
 	                JOptionPane.showMessageDialog(frame, "영화를 선택하세요.", "예매 오류", JOptionPane.ERROR_MESSAGE);
 	            }
@@ -169,7 +170,7 @@ public class MovieSearchComponent extends JFrame {
 
 	    } catch (SQLException e) {
 	        e.printStackTrace();
-	        JOptionPane.showMessageDialog(null, "테이블 조회 중 오류가 발생했습니다: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        JOptionPane.showMessageDialog(null, "영화 조회 중 오류가 발생했습니다: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 	    } finally {
 	        try {
 	            if (resultSet != null) {
@@ -183,6 +184,100 @@ public class MovieSearchComponent extends JFrame {
 	        }
 	    }
 	}
+	
+	
+	
+    private void showScreeningList(int movieId) {
+        Statement stmt = null;
+        ResultSet resultSet = null;
+
+        try {
+            stmt = dbConnection.createStatement();
+
+            String query = "SELECT * FROM Screenings WHERE MovieID = " + movieId;
+            resultSet = stmt.executeQuery(query);
+            
+            // 결과 데이터를 JTable에 추가
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            String[] columnNames = new String[columnCount];
+            for (int i = 1; i <= columnCount; i++) {
+                columnNames[i - 1] = metaData.getColumnName(i);
+            }
+
+            DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+
+            boolean hasResults = false;
+
+            while (resultSet.next()) {
+                hasResults = true;
+                Object[] rowData = new Object[columnCount];
+                for (int i = 1; i <= columnCount; i++) {
+                    rowData[i - 1] = resultSet.getObject(i);
+                }
+                model.addRow(rowData);
+            }
+
+            JTable table = new JTable(model);
+            JScrollPane scrollPane = new JScrollPane(table);
+
+            table.setRowHeight(30); // 원하는 높이로 설정
+
+            if (!hasResults) {
+                JOptionPane.showMessageDialog(null, "해당하는 상영 정보가 없습니다", "정보", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            
+	        // 새로운 JFrame 생성
+	        JFrame frame = new JFrame("영화 상영정보 조회");
+	        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	        frame.setLayout(new BorderLayout());
+
+	        // 버튼 패널 생성
+	        JPanel buttonPanel = new JPanel();
+
+	        // 예매 버튼 추가 및 위치와 크기 설정
+	        JButton bookButton = new JButton("예매");
+	        bookButton.setPreferredSize(new Dimension(100, 25)); // 버튼 크기 설정
+	        buttonPanel.add(bookButton); // 패널에 예매 버튼 추가
+
+	        // 취소 버튼 추가 및 위치와 크기 설정
+	        JButton cancelButton = new JButton("취소");
+	        cancelButton.setPreferredSize(new Dimension(100, 25)); // 버튼 크기 설정
+	        buttonPanel.add(cancelButton); // 패널에 취소 버튼 추가
+
+	        // 버튼 패널을 프레임 상단에 추가
+	        frame.add(buttonPanel, BorderLayout.NORTH);
+
+	        // 테이블 스크롤 패인을 가운데에 추가
+	        frame.add(scrollPane, BorderLayout.CENTER);
+
+	        frame.setSize(800, 600);
+	        frame.setVisible(true);
+
+	        // 예매 버튼 이벤트 처리
+
+	        // 취소 버튼 이벤트 처리
+	        cancelButton.addActionListener(e -> frame.dispose());
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "상영 정보 조회 중 오류가 발생했습니다: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private String setQuery(String movieName, String director, String genre, String actor) {
         // 기본 쿼리 문자열 생성
@@ -235,64 +330,4 @@ public class MovieSearchComponent extends JFrame {
 
 }
 
-/*
-private void showMovieList(String movieName, String director, String genre, String actor) {
-    // 영화 목록 조회 로직 구현
-    Statement stmt = null;
-    ResultSet resultSet = null;
-         
-    try {
-        stmt = dbConnection.createStatement();
-        
-        String query = setQuery(movieName, director, genre, actor);
-        resultSet = stmt.executeQuery(query);
 
-        // 결과 데이터를 JTable에 추가
-        String[] columnNames = {"MovieID", "MovieTitle"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        
-        boolean hasResults = false;
-        
-        while (resultSet.next()) {
-        	hasResults = true;
-            int movieID = resultSet.getInt("MovieID");
-            String movieTitle = resultSet.getString("Title");
-            model.addRow(new Object[]{movieID, movieTitle});
-        }
-
-        JTable table = new JTable(model);
-        JScrollPane scrollPane = new JScrollPane(table);
-        
-        table.setRowHeight(30); // 원하는 높이로 설정
-        
-        if (!hasResults) {
-            JOptionPane.showMessageDialog(null, "해당하는 영화가 없습니다", "정보", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
-        // 새로운 JFrame 생성
-        JFrame frame = new JFrame("영화 조회");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-        frame.add(scrollPane, BorderLayout.CENTER);
-        frame.setSize(800, 600);
-        frame.setVisible(true);
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "테이블 조회 중 오류가 발생했습니다: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    } finally {
-        try {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-	   	    	
-}
-*/
