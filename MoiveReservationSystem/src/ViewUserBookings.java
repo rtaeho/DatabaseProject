@@ -613,6 +613,12 @@ public class ViewUserBookings extends JFrame {
 				JOptionPane.showMessageDialog(currentFrame, "예매가 성공적으로 완료되었습니다.", "Success",
 						JOptionPane.INFORMATION_MESSAGE);
 				try {
+					String updateSeatsQuery = "UPDATE Seats SET IsActive = FALSE WHERE SeatID IN "
+							+ "(SELECT SeatID FROM Tickets WHERE BookingID = ?)";
+					PreparedStatement updateSeatsStmt = dbConnection.prepareStatement(updateSeatsQuery);
+					updateSeatsStmt.setInt(1, bookingId);
+					updateSeatsStmt.executeUpdate();
+					
 					String deleteTicketQuery = "DELETE FROM Tickets WHERE BookingID = ?";
 					PreparedStatement deleteTicketStmt = dbConnection.prepareStatement(deleteTicketQuery);
 					deleteTicketStmt.setInt(1, bookingId);
@@ -623,11 +629,6 @@ public class ViewUserBookings extends JFrame {
 					deleteBookingStmt.setInt(1, bookingId);
 					deleteBookingStmt.executeUpdate();
 
-					String updateSeatsQuery = "UPDATE Seats SET IsActive = FALSE WHERE SeatID IN "
-							+ "(SELECT SeatID FROM Tickets WHERE BookingID = ?)";
-					PreparedStatement updateSeatsStmt = dbConnection.prepareStatement(updateSeatsQuery);
-					updateSeatsStmt.setInt(1, bookingId);
-					updateSeatsStmt.executeUpdate();
 					JOptionPane.showMessageDialog(ViewUserBookings.this, "예매가 변경되었습니다.");
 
 				} catch (SQLException ex) {
