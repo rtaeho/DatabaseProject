@@ -4,8 +4,8 @@ import java.sql.Connection;
 
 public class UserPanel extends JPanel {
 	private Connection dbConnection;
-	
-    public UserPanel(Connection dbConnection) {
+
+	public UserPanel(Connection dbConnection) {
     	this.dbConnection = dbConnection;
     	
         setLayout(new BorderLayout());
@@ -29,16 +29,10 @@ public class UserPanel extends JPanel {
         *  상영일정번호로 영화번호 찾기
         *  영화제목, 상영일정번호, 상영관번호 조합해서 띄우기?
         */
-        viewBookingsButton.addActionListener(e -> viewUserBookings());
+        viewBookingsButton.addActionListener(e -> new ViewUserBookings(dbConnection));
         backButton.addActionListener(e -> Utils.switchToPanel(this, new MainPanel()));
     }
-   
 
-    private void viewUserBookings() {
-        // 예매한 영화 조회 로직 구현
-        // 사용자가 예매한 영화 목록을 보여주는 컴포넌트를 활성화
-    }
-    
-    // MovieListComponent 클래스는 실제로 영화 목록을 보여주는 UI 컴포넌트입니다.
-    // 이 예제에서는 해당 클래스의 구현이 제공되지 않았습니다.
+	// MovieListComponent 클래스는 실제로 영화 목록을 보여주는 UI 컴포넌트입니다.
+	// 이 예제에서는 해당 클래스의 구현이 제공되지 않았습니다.
 }
