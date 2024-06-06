@@ -35,8 +35,8 @@ public class AdminPanel extends JPanel {
         initButton.addActionListener(e -> initializeDatabase());
         viewAllButton.addActionListener(e -> viewAllTables());
         insertButton.addActionListener(e -> new MovieInputComponent(dbConnection));
-        deleteButton.addActionListener(e -> new MovieDeleteComponent());
-        updateButton.addActionListener(e -> new MovieUpdateComponent());
+        deleteButton.addActionListener(e -> new MovieDeleteComponent(dbConnection));
+        updateButton.addActionListener(e -> new MovieUpdateComponent(dbConnection));
         backButton.addActionListener(e -> Utils.switchToPanel(this, new MainPanel()));
     }
 
@@ -113,7 +113,7 @@ public class AdminPanel extends JPanel {
         	    ");",
 
         	    "CREATE TABLE Theaters (" +
-        	    "    TheaterID INT PRIMARY KEY AUTO_INCREMENT," +
+        	    "    TheaterID INT PRIMARY KEY," +
         	    "    NumberOfSeats INT," +
         	    "    HorizontalSeats INT," +
         	    "    VerticalSeats INT" +
@@ -127,8 +127,8 @@ public class AdminPanel extends JPanel {
         	    "    ScreeningDate DATE," +
         	    "    SessionNumber INT," +
         	    "    StartTime TIME," +
-        	    "    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID)," +
-        	    "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID)" +
+        	    "    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID) ON DELETE CASCADE," +
+        	    "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID) ON DELETE CASCADE" +
         	    ");",
 
         	    "CREATE TABLE Seats (" +
@@ -136,8 +136,8 @@ public class AdminPanel extends JPanel {
         	    "    TheaterID INT," +
         	    "    ScreeningID INT," +
         	    "    IsActive BOOLEAN," +
-        	    "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID)," +
-        	    "    FOREIGN KEY (ScreeningID) REFERENCES Screenings(ScreeningID)" +
+        	    "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID) ON DELETE CASCADE," +
+        	    "    FOREIGN KEY (ScreeningID) REFERENCES Screenings(ScreeningID) ON DELETE CASCADE" +
         	    ");",
 
         	    "CREATE TABLE TheaterUse (" +
@@ -145,8 +145,8 @@ public class AdminPanel extends JPanel {
         	    "    ScreeningID INT," +
         	    "    TheaterUse BOOLEAN," +
         	    "    PRIMARY KEY (TheaterID, ScreeningID)," +
-        	    "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID)," +
-        	    "    FOREIGN KEY (ScreeningID) REFERENCES Screenings(ScreeningID)" +
+        	    "    FOREIGN KEY (TheaterID) REFERENCES Theaters(TheaterID) ON DELETE CASCADE," +
+        	    "    FOREIGN KEY (ScreeningID) REFERENCES Screenings(ScreeningID) ON DELETE CASCADE" +
         	    ");",
 
         	    "CREATE TABLE Bookings (" +
@@ -156,7 +156,7 @@ public class AdminPanel extends JPanel {
         	    "    Amount INT," +
         	    "    CustomerID VARCHAR(255)," +
         	    "    PaymentDate DATE," +
-        	    "    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)" +
+        	    "    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE" +
         	    ");",
 
         	    "CREATE TABLE Tickets (" +
@@ -167,17 +167,17 @@ public class AdminPanel extends JPanel {
         	    "    IsTicketing BOOLEAN," +
         	    "    StandardPrice INT," +
         	    "    SalePrice INT," +
-        	    "    FOREIGN KEY (ScreeningID) REFERENCES Screenings(ScreeningID)," +
-        	    "    FOREIGN KEY (SeatID) REFERENCES Seats(SeatID)," +
-        	    "    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID)" +
+        	    "    FOREIGN KEY (ScreeningID) REFERENCES Screenings(ScreeningID) ON DELETE CASCADE, " +
+        	    "    FOREIGN KEY (SeatID) REFERENCES Seats(SeatID) ON DELETE CASCADE," +
+        	    "    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID) ON DELETE CASCADE" +
         	    ");",
 
         	    "CREATE TABLE MovieActors (" +
         	    "    MovieID INT," +
         	    "    ActorID INT," +
         	    "    PRIMARY KEY (MovieID, ActorID)," +
-        	    "    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID)," +
-        	    "    FOREIGN KEY (ActorID) REFERENCES Actors(ActorID)" +
+        	    "    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID) ON DELETE CASCADE," +
+        	    "    FOREIGN KEY (ActorID) REFERENCES Actors(ActorID) ON DELETE CASCADE" +
         	    ");"
         	};
 
@@ -375,7 +375,6 @@ public class AdminPanel extends JPanel {
                 
                 if (rs.next()) {
                     int seatCount = rs.getInt("NumberOfSeats");
-                    System.out.println("ScreeningID: " + screeningID + ", TheaterID: " + theaterID + ", SeatCount: " + seatCount);
                     for (int i = 0; i < seatCount; i++) {
                         String insertQuery = "INSERT INTO Seats (TheaterID, ScreeningID, IsActive) VALUES (" 
                                              + theaterID + ", " + screeningID + ", false)";
