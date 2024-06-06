@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
-import java.util.ArrayList;
 
 public class ViewUserBookings extends JFrame {
 	private Connection dbConnection;
@@ -49,12 +48,12 @@ public class ViewUserBookings extends JFrame {
 			stmt.setString(1, userId);
 			ResultSet rs = stmt.executeQuery();
 
-			String[] columnNames = { "예매번호", "영화제목", "상영일", "상영관번호", "좌석번호", "판매가격" };
+			String[] columnNames = { "영화제목", "상영일", "상영관번호", "좌석번호", "판매가격" };
 			DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
 			while (rs.next()) {
-				model.addRow(new Object[] { rs.getInt("BookingID"), rs.getString("Title"), rs.getDate("ScreeningDate"),
-						rs.getInt("TheaterID"), rs.getInt("SeatID"), rs.getDouble("SalePrice") });
+				model.addRow(new Object[] { rs.getString("Title"), rs.getDate("ScreeningDate"), rs.getInt("TheaterID"),
+						rs.getInt("SeatID"), rs.getDouble("SalePrice") });
 			}
 
 			bookingsTable = new JTable(model);
@@ -79,11 +78,15 @@ public class ViewUserBookings extends JFrame {
 
 			int bookingId = (int) bookingsTable.getValueAt(selectedRow, 0);
 			try {
-				String deleteQuery = "DELETE FROM Bookings WHERE BookingID = ?";
-				PreparedStatement stmt = dbConnection.prepareStatement(deleteQuery);
-				stmt.setInt(1, bookingId);
-				stmt.executeUpdate();
-				stmt.close();
+				String deleteTicketQuery = "DELETE FROM Tickets WHERE BookingID = ?";
+				PreparedStatement deleteTicketStmt = dbConnection.prepareStatement(deleteTicketQuery);
+				deleteTicketStmt.setInt(1, bookingId);
+				deleteTicketStmt.executeUpdate();
+
+				String deleteBookingQuery = "DELETE FROM Bookings WHERE BookingID = ?";
+				PreparedStatement deleteBookingStmt = dbConnection.prepareStatement(deleteBookingQuery);
+				deleteBookingStmt.setInt(1, bookingId);
+				deleteBookingStmt.executeUpdate();
 
 				JOptionPane.showMessageDialog(ViewUserBookings.this, "예매가 삭제되었습니다.");
 				loadBookings(); // 테이블 갱신
@@ -106,20 +109,30 @@ public class ViewUserBookings extends JFrame {
 			String newMovieId = JOptionPane.showInputDialog("새로운 영화 ID를 입력하세요:");
 			if (newMovieId != null) {
 				try {
-					String updateQuery = "UPDATE Screenings s " + "JOIN Tickets t ON s.ScreeningID = t.ScreeningID "
-							+ "SET s.MovieID = ? WHERE t.BookingID = ?";
-					PreparedStatement stmt = dbConnection.prepareStatement(updateQuery);
-					stmt.setString(1, newMovieId);
-					stmt.setInt(2, bookingId);
-					stmt.executeUpdate();
-					stmt.close();
+					String getNewScreeningQuery = "SELECT ScreeningID FROM Screenings WHERE MovieID = ? LIMIT 1";
+					PreparedStatement getNewScreeningStmt = dbConnection.prepareStatement(getNewScreeningQuery);
+					getNewScreeningStmt.setString(1, newMovieId);
+					ResultSet rs = getNewScreeningStmt.executeQuery();
 
-					JOptionPane.showMessageDialog(ViewUserBookings.this, "영화가 변경되었습니다.");
-					loadBookings(); // 테이블 갱신
+					if (rs.next()) {
+						int newScreeningId = rs.getInt("ScreeningID");
+
+						String updateQuery = "UPDATE Tickets SET ScreeningID = ? WHERE BookingID = ?";
+						PreparedStatement updateStmt = dbConnection.prepareStatement(updateQuery);
+						updateStmt.setInt(1, newScreeningId);
+						updateStmt.setInt(2, bookingId);
+						updateStmt.executeUpdate();
+
+						JOptionPane.showMessageDialog(ViewUserBookings.this, "영화가 변경되었습니다.");
+						loadBookings(); // 테이블 갱신
+					} else {
+						JOptionPane.showMessageDialog(ViewUserBookings.this, "해당 영화의 상영 일정이 없습니다.");
+					}
 				} catch (SQLException ex) {
 					ex.printStackTrace();
 				}
 			}
+
 		}
 	}
 
