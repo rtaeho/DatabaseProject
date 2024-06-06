@@ -92,69 +92,23 @@ public class MovieInputComponent extends JFrame {
 			double score = Double.parseDouble(scoreField.getText());
 			String[] actors = actorsField.getText().split(","); // 쉼표로 구분된 배우명
 
-			insertMovieWithActors(movieName, duration, rating, director, genre, introduction, releaseDate, score,
-					actors);
-		}, e -> currentFrame.dispose());
-		Utils.showMessage("데이터가 저장되었습니다.");
-		currentFrame.dispose();
-		currentFrame.add(buttonPanel);
-	}
+			try {
+				int movieId = insertMovie(movieName, duration, rating, director, genre, introduction, releaseDate,
+						score);
 
-	private void insertMovieWithActors(String title, int movieTime, String rating, String director, String genre,
-			String introduction, String releaseDate, double score, String[] actors) {
-		String movieSql = "INSERT INTO Movies (Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-		String actorSql = "INSERT INTO Actors (ActorName) VALUES (?) ON DUPLICATE KEY UPDATE ActorID=LAST_INSERT_ID(ActorID)";
-		String movieActorSql = "INSERT INTO MovieActors (MovieID, ActorID) VALUES (?, ?)";
+				for (String actorName : actors) {
+					actorName = actorName.trim(); // 배우 이름의 앞뒤 공백 제거
+					int actorId = insertActor(actorName); // 배우 정보 삽입
 
-		try {
-			connection.setAutoCommit(false); // 트랜잭션 시작
-
-			// 영화 데이터 삽입
-			try (PreparedStatement moviePstmt = connection.prepareStatement(movieSql,
-					Statement.RETURN_GENERATED_KEYS)) {
-				moviePstmt.setString(1, title);
-				moviePstmt.setInt(2, movieTime);
-				moviePstmt.setString(3, rating);
-				moviePstmt.setString(4, director);
-				moviePstmt.setString(5, genre);
-				moviePstmt.setString(6, introduction);
-				moviePstmt.setDate(7, java.sql.Date.valueOf(releaseDate));
-				moviePstmt.setDouble(8, score);
-
-				moviePstmt.executeUpdate();
-
-				ResultSet generatedKeys = moviePstmt.getGeneratedKeys();
-				if (generatedKeys.next()) {
-					int movieId = generatedKeys.getInt(1);
-
-					// 배우 데이터 삽입 및 MovieActors 테이블 업데이트
-					try (PreparedStatement actorPstmt = connection.prepareStatement(actorSql,
-							Statement.RETURN_GENERATED_KEYS);
-							PreparedStatement movieActorPstmt = connection.prepareStatement(movieActorSql)) {
-						for (String actor : actors) {
-							actorPstmt.setString(1, actor.trim());
-							actorPstmt.executeUpdate();
-
-							ResultSet actorKeys = actorPstmt.getGeneratedKeys();
-							if (actorKeys.next()) {
-								int actorId = actorKeys.getInt(1);
-								movieActorPstmt.setInt(1, movieId);
-								movieActorPstmt.setInt(2, actorId);
-								movieActorPstmt.executeUpdate();
-							}
-						}
-					}
+					insertMovieActor(movieId, actorId); // 영화-배우 관계 삽입
 				}
-
-				connection.commit(); // 트랜잭션 커밋
-			} catch (SQLException e) {
-				connection.rollback(); // 트랜잭션 롤백
-				e.printStackTrace();
+				Utils.showMessage("저장되었습니다.");
+				currentFrame.dispose();
+			} catch (SQLException ex) {
+				Utils.showMessage("에러: " + ex.getMessage());
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		}, e -> currentFrame.dispose());
+		currentFrame.add(buttonPanel);
 	}
 
 	private void createInputFormForScreenings() {
@@ -176,8 +130,25 @@ public class MovieInputComponent extends JFrame {
 			String screeningDate = screeningDateField.getText();
 			int session = Integer.parseInt(sessionField.getText());
 			String startTime = startTimeField.getText();
-
-			// 상영 정보 처리 로직 추가
+			ResultSet theaterResultSet = null;
+			try {
+				int screeningID = insertScreening(movieNumber, theaterNumber, startDate, screeningDate, session,
+						startTime);
+				theaterResultSet = getTheater(theaterNumber);
+				if (theaterResultSet.next()) {
+					int numSeats = theaterResultSet.getInt("NumberOfSeats"); // 상영관의 좌석 수 가져오기
+					for (int i = 0; i < numSeats; i++) {
+						insertSeat(theaterNumber, screeningID, false); // 상영관에 좌석 생성
+					}
+				} else {
+					System.out.println("상영관을 찾을 수 없습니다.");
+				}
+				insertTheaterUse(theaterNumber, screeningID, true);
+				Utils.showMessage("저장되었습니다.");
+				currentFrame.dispose();
+			} catch (SQLException ex) {
+				Utils.showMessage("에러: " + ex.getMessage());
+			}
 		}, e -> currentFrame.dispose());
 
 		currentFrame.add(buttonPanel);
@@ -186,22 +157,26 @@ public class MovieInputComponent extends JFrame {
 	private void createInputFormForTheaters() {
 		JTextField theaterNumField = new JTextField();
 		JTextField seatCountField = new JTextField();
-		JCheckBox theaterUseCheckBox = new JCheckBox();
 		JTextField horizontalSeatsField = new JTextField();
 		JTextField verticalSeatsField = new JTextField();
 
 		addInputFields(currentFrame, new JLabel("상영관번호:"), theaterNumField, new JLabel("좌석수:"), seatCountField,
-				new JLabel("상영관사용여부:"), theaterUseCheckBox, new JLabel("가로좌석수:"), horizontalSeatsField,
-				new JLabel("세로좌석수:"), verticalSeatsField);
+				new JLabel("가로좌석수:"), horizontalSeatsField, new JLabel("세로좌석수:"), verticalSeatsField);
 
 		JPanel buttonPanel = createButtonPanel(e -> {
 			int theaterNum = Integer.parseInt(theaterNumField.getText());
 			int seatCount = Integer.parseInt(seatCountField.getText());
-			boolean theaterUse = theaterUseCheckBox.isSelected();
 			int horizontalSeats = Integer.parseInt(horizontalSeatsField.getText());
 			int verticalSeats = Integer.parseInt(verticalSeatsField.getText());
 
-			// 상영관 정보 처리 로직 추가
+			try {
+				insertTheater(theaterNum, seatCount, horizontalSeats, verticalSeats);
+				Utils.showMessage("저장되었습니다.");
+				currentFrame.dispose();
+			} catch (SQLException ex) {
+				// TODO Auto-generated catch block
+				Utils.showMessage("에러: " + ex.getMessage());
+			}
 		}, e -> currentFrame.dispose());
 
 		currentFrame.add(buttonPanel);
@@ -217,14 +192,13 @@ public class MovieInputComponent extends JFrame {
 		JTextField standardPriceField = new JTextField();
 		JTextField sellingPriceField = new JTextField();
 
-		addInputFields(currentFrame, new JLabel("상영일정번호:"), scheduleNumberField, new JLabel("상영일:"), screeningDateField,
+		addInputFields(currentFrame, new JLabel("상영일정번호:"), scheduleNumberField, screeningDateField,
 				new JLabel("상영관번호:"), theaterNumberField, new JLabel("좌석번호:"), seatNumberField, new JLabel("예매번호:"),
 				bookingNumberField, new JLabel("발권여부:"), ticketIssuedCheckBox, new JLabel("표준가격:"), standardPriceField,
 				new JLabel("판매가격:"), sellingPriceField);
 
 		JPanel buttonPanel = createButtonPanel(e -> {
 			int scheduleNumber = Integer.parseInt(scheduleNumberField.getText());
-			String screeningDate = screeningDateField.getText();
 			int theaterNumber = Integer.parseInt(theaterNumberField.getText());
 			int seatNumber = Integer.parseInt(seatNumberField.getText());
 			int bookingNumber = Integer.parseInt(bookingNumberField.getText());
@@ -232,7 +206,12 @@ public class MovieInputComponent extends JFrame {
 			int standardPrice = Integer.parseInt(standardPriceField.getText());
 			int sellingPrice = Integer.parseInt(sellingPriceField.getText());
 
-			// 티켓 정보 처리 로직 추가
+			try {
+				insertTicket(scheduleNumber, seatNumber, bookingNumber, ticketIssued, standardPrice, sellingPrice);
+			} catch (SQLException ex) {
+				// TODO Auto-generated catch block
+				Utils.showMessage("에러: " + ex.getMessage());
+			}
 		}, e -> currentFrame.dispose());
 
 		currentFrame.add(buttonPanel);
@@ -243,15 +222,22 @@ public class MovieInputComponent extends JFrame {
 		JTextField screeningDateField = new JTextField();
 		JCheckBox seatUseCheckBox = new JCheckBox();
 
-		addInputFields(currentFrame, new JLabel("상영관번호:"), theaterNumberField, new JLabel("상영일:"), screeningDateField,
-				new JLabel("좌석사용여부:"), seatUseCheckBox);
+		addInputFields(currentFrame, new JLabel("상영관번호:"), theaterNumberField, new JLabel("상영일정번호:"),
+				screeningDateField, new JLabel("좌석사용여부:"), seatUseCheckBox);
 
 		JPanel buttonPanel = createButtonPanel(e -> {
 			int theaterNumber = Integer.parseInt(theaterNumberField.getText());
-			String screeningDate = screeningDateField.getText();
+			int screeningId = Integer.parseInt(screeningDateField.getText());
 			boolean seatUse = seatUseCheckBox.isSelected();
 
-			// 좌석 정보 처리 로직 추가
+			try {
+				insertSeat(theaterNumber, screeningId, seatUse);
+				Utils.showMessage("저장되었습니다.");
+				currentFrame.dispose();
+			} catch (SQLException ex) {
+				// TODO Auto-generted catch block
+				Utils.showMessage("에러: " + ex.getMessage());
+			}
 		}, e -> currentFrame.dispose());
 
 		currentFrame.add(buttonPanel);
@@ -263,7 +249,7 @@ public class MovieInputComponent extends JFrame {
 		JTextField phoneNumberField = new JTextField();
 		JTextField emailField = new JTextField();
 
-		addInputFields(currentFrame, new JLabel("회원아이디:"), memberIdField, new JLabel("고객:"), customerNameField,
+		addInputFields(currentFrame, new JLabel("회원아이디:"), memberIdField, new JLabel("고객명:"), customerNameField,
 				new JLabel("휴대폰번호:"), phoneNumberField, new JLabel("전자메일주소:"), emailField);
 		JPanel buttonPanel = createButtonPanel(e -> {
 			String memberId = memberIdField.getText();
@@ -271,7 +257,14 @@ public class MovieInputComponent extends JFrame {
 			String phoneNumber = phoneNumberField.getText();
 			String email = emailField.getText();
 
-			// 고객 정보 처리 로직 추가
+			try {
+				insertCustomer(memberId, customerName, phoneNumber, email);
+				Utils.showMessage("저장되었습니다.");
+				currentFrame.dispose();
+			} catch (SQLException ex) {
+				// TODO Auto-generated catch block
+				Utils.showMessage("에러: " + ex.getMessage());
+			}
 		}, e -> currentFrame.dispose());
 
 		currentFrame.add(buttonPanel);
@@ -295,10 +288,448 @@ public class MovieInputComponent extends JFrame {
 			String memberId = memberIdField.getText();
 			String paymentDate = paymentDateField.getText();
 
-			// 예약 정보 처리 로직 추가
+			try {
+				insertBooking(paymentMethod, paymentStatus, paymentAmount, memberId, paymentDate);
+				Utils.showMessage("저장되었습니다.");
+				currentFrame.dispose();
+			} catch (SQLException ex) {
+				// TODO Auto-generated catch block
+				Utils.showMessage("에러: " + ex.getMessage());
+			}
 		}, e -> currentFrame.dispose());
 
 		currentFrame.add(buttonPanel);
+	}
+
+	// Movies 테이블에 대한 CRUD 메소드
+	public int insertMovie(String title, int movieTime, String rating, String director, String genre,
+			String introduction, String releaseDate, double score) throws SQLException {
+		String sql = "INSERT INTO Movies (Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setString(1, title);
+			pstmt.setInt(2, movieTime);
+			pstmt.setString(3, rating);
+			pstmt.setString(4, director);
+			pstmt.setString(5, genre);
+			pstmt.setString(6, introduction);
+			pstmt.setDate(7, java.sql.Date.valueOf(releaseDate));
+			pstmt.setDouble(8, score);
+			pstmt.executeUpdate();
+			ResultSet generatedKeys = pstmt.getGeneratedKeys();
+			if (generatedKeys.next()) {
+				return generatedKeys.getInt(1);
+			} else {
+				throw new SQLException("Creating movie failed, no ID obtained.");
+			}
+		}
+	}
+
+	public void updateMovie(int movieId, String title, int movieTime, String rating, String director, String genre,
+			String introduction, String releaseDate, double score) throws SQLException {
+		String sql = "UPDATE Movies SET Title = ?, MovieTime = ?, Rating = ?, Director = ?, Genre = ?, Introduction = ?, ReleaseDate = ?, Score = ? WHERE MovieID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, title);
+			pstmt.setInt(2, movieTime);
+			pstmt.setString(3, rating);
+			pstmt.setString(4, director);
+			pstmt.setString(5, genre);
+			pstmt.setString(6, introduction);
+			pstmt.setDate(7, java.sql.Date.valueOf(releaseDate));
+			pstmt.setDouble(8, score);
+			pstmt.setInt(9, movieId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteMovie(int movieId) throws SQLException {
+		String sql = "DELETE FROM Movies WHERE MovieID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, movieId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getMovie(int movieId) throws SQLException {
+		String sql = "SELECT * FROM Movies WHERE MovieID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, movieId);
+			return pstmt.executeQuery();
+		}
+	}
+
+	// Actors 테이블에 대한 CRUD 메소드
+	public int insertActor(String actorName) throws SQLException {
+		String sql = "INSERT INTO Actors (ActorName) VALUES (?) ON DUPLICATE KEY UPDATE ActorID=LAST_INSERT_ID(ActorID)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setString(1, actorName);
+			pstmt.executeUpdate();
+			ResultSet generatedKeys = pstmt.getGeneratedKeys();
+			if (generatedKeys.next()) {
+				return generatedKeys.getInt(1);
+			} else {
+				throw new SQLException("Creating actor failed, no ID obtained.");
+			}
+		}
+	}
+
+	public void updateActor(int actorId, String actorName) throws SQLException {
+		String sql = "UPDATE Actors SET ActorName = ? WHERE ActorID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, actorName);
+			pstmt.setInt(2, actorId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteActor(int actorId) throws SQLException {
+		String sql = "DELETE FROM Actors WHERE ActorID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, actorId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getActor(int actorId) throws SQLException {
+		String sql = "SELECT * FROM Actors WHERE ActorID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, actorId);
+			return pstmt.executeQuery();
+		}
+	}
+
+	// MovieActors 테이블에 대한 CRUD 메소드
+	public void insertMovieActor(int movieId, int actorId) throws SQLException {
+		String sql = "INSERT INTO MovieActors (MovieID, ActorID) VALUES (?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, movieId);
+			pstmt.setInt(2, actorId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteMovieActor(int movieId, int actorId) throws SQLException {
+		String sql = "DELETE FROM MovieActors WHERE MovieID = ? AND ActorID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, movieId);
+			pstmt.setInt(2, actorId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getMovieActors(int movieId) throws SQLException {
+		String sql = "SELECT * FROM MovieActors WHERE MovieID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, movieId);
+			return pstmt.executeQuery();
+		}
+	}
+
+	// Screenings 테이블에 대한 CRUD 메소드
+	public int insertScreening(int movieId, int theaterId, String startDate, String screeningDate, int session,
+			String startTime) throws SQLException {
+		String sql = "INSERT INTO Screenings (MovieID, TheaterID, ScreeningStartDate, ScreeningDate, SessionNumber, StartTime) VALUES (?, ?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setInt(1, movieId);
+			pstmt.setInt(2, theaterId);
+			pstmt.setDate(3, java.sql.Date.valueOf(startDate));
+			pstmt.setDate(4, java.sql.Date.valueOf(screeningDate));
+			pstmt.setInt(5, session);
+			pstmt.setTime(6, java.sql.Time.valueOf(startTime));
+			pstmt.executeUpdate();
+			ResultSet generatedKeys = pstmt.getGeneratedKeys();
+			if (generatedKeys.next()) {
+				return generatedKeys.getInt(1);
+			} else {
+				throw new SQLException("Creating screening failed, no ID obtained.");
+			}
+		}
+	}
+
+	public void updateScreening(int screeningId, int movieId, int theaterId, String startDate, String screeningDate,
+			int session, String startTime) throws SQLException {
+		String sql = "UPDATE Screenings SET MovieID = ?, TheaterID = ?, StartDate = ?, ScreeningDate = ?, Session = ?, StartTime = ? WHERE ScreeningID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, movieId);
+			pstmt.setInt(2, theaterId);
+			pstmt.setDate(3, java.sql.Date.valueOf(startDate));
+			pstmt.setDate(4, java.sql.Date.valueOf(screeningDate));
+			pstmt.setInt(5, session);
+			pstmt.setTime(6, java.sql.Time.valueOf(startTime));
+			pstmt.setInt(7, screeningId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteScreening(int screeningId) throws SQLException {
+		String sql = "DELETE FROM Screenings WHERE ScreeningID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, screeningId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getScreening(int screeningId) throws SQLException {
+		String sql = "SELECT * FROM Screenings WHERE ScreeningID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, screeningId);
+			return pstmt.executeQuery();
+		}
+	}
+
+	// Seats 테이블에 대한 CRUD 메소드
+	public void insertSeat(int theaterId, int screeningId, boolean isAvailable) throws SQLException {
+		String sql = "INSERT INTO Seats (TheaterID, ScreeningID, IsActive) VALUES (?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, theaterId);
+			pstmt.setInt(2, screeningId);
+			pstmt.setBoolean(3, isAvailable);
+			pstmt.executeUpdate();
+		}
+
+	}
+
+	public void updateSeat(int seatId, boolean isAvailable) throws SQLException {
+		String sql = "UPDATE Seats SET IsAvailable = ? WHERE SeatID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setBoolean(1, isAvailable);
+			pstmt.setInt(2, seatId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteSeat(int seatId) throws SQLException {
+		String sql = "DELETE FROM Seats WHERE SeatID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, seatId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getSeat(int seatId) throws SQLException {
+		String sql = "SELECT * FROM Seats WHERE SeatID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, seatId);
+			return pstmt.executeQuery();
+		}
+	}
+
+	// Theaters 테이블에 대한 CRUD 메소드
+	public int insertTheater(int theaterName, int totalSeats, int horizontalSeats, int verticalSeats)
+			throws SQLException {
+		String sql = "INSERT INTO Theaters (TheaterId, NumberOfSeats, HorizontalSeats, VerticalSeats) VALUES (?, ?, ? , ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setInt(1, theaterName);
+			pstmt.setInt(2, totalSeats);
+			pstmt.setInt(3, horizontalSeats);
+			pstmt.setInt(4, verticalSeats);
+			return pstmt.executeUpdate();
+		}
+	}
+
+	public void updateTheater(int theaterId, String theaterName, int totalSeats) throws SQLException {
+		String sql = "UPDATE Theaters SET TheaterName = ?, TotalSeats = ? WHERE TheaterID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, theaterName);
+			pstmt.setInt(2, totalSeats);
+			pstmt.setInt(3, theaterId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteTheater(int theaterId) throws SQLException {
+		String sql = "DELETE FROM Theaters WHERE TheaterID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, theaterId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getTheater(int theaterId) throws SQLException {
+		String sql = "SELECT * FROM Theaters WHERE TheaterID = ?";
+		PreparedStatement pstmt = null;
+		ResultSet resultSet = null;
+		try {
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setInt(1, theaterId);
+			resultSet = pstmt.executeQuery();
+			return resultSet;
+		} catch (SQLException ex) {
+			throw ex;
+		}
+	}
+
+	// Tickets 테이블에 대한 CRUD 메소드
+	public int insertTicket(int screeningId, int seatId, int bookingId, boolean isTicketing, int standardPrice,
+			int salePrice) throws SQLException {
+		String sql = "INSERT INTO Tickets (ScreeningID, SeatID, BookingID, IsTicketing, StandardPrice, SalePrice) VALUES (?, ?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setInt(1, screeningId);
+			pstmt.setInt(2, seatId);
+			pstmt.setDouble(3, bookingId);
+			pstmt.setBoolean(4, isTicketing);
+			pstmt.setInt(5, standardPrice);
+			pstmt.setInt(6, salePrice);
+			pstmt.executeUpdate();
+			ResultSet generatedKeys = pstmt.getGeneratedKeys();
+			if (generatedKeys.next()) {
+				return generatedKeys.getInt(1);
+			} else {
+				throw new SQLException("Creating ticket failed, no ID obtained.");
+			}
+		}
+	}
+
+	public void updateTicket(int ticketId, int screeningId, int seatId, double price, boolean isPurchased)
+			throws SQLException {
+		String sql = "UPDATE Tickets SET ScreeningID = ?, SeatID = ?, Price = ?, IsPurchased = ? WHERE TicketID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, screeningId);
+			pstmt.setInt(2, seatId);
+			pstmt.setDouble(3, price);
+			pstmt.setBoolean(4, isPurchased);
+			pstmt.setInt(5, ticketId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteTicket(int ticketId) throws SQLException {
+		String sql = "DELETE FROM Tickets WHERE TicketID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, ticketId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getTicket(int ticketId) throws SQLException {
+		String sql = "SELECT * FROM Tickets WHERE TicketID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, ticketId);
+			return pstmt.executeQuery();
+		}
+	}
+
+	// Bookings 테이블에 대한 CRUD 메소드
+	public int insertBooking(String paymentMethod, String paymentStatus, int amount, String customerId,
+			String bookingDate) throws SQLException {
+		String sql = "INSERT INTO Bookings (Payment,PaymentStatus, Amount, CustomerID, PaymentDate) VALUES (?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setString(1, paymentMethod);
+			pstmt.setString(2, paymentStatus);
+			pstmt.setInt(3, amount);
+			pstmt.setString(4, customerId);
+			pstmt.setDate(5, java.sql.Date.valueOf(bookingDate));
+			pstmt.executeUpdate();
+			ResultSet generatedKeys = pstmt.getGeneratedKeys();
+			if (generatedKeys.next()) {
+				return generatedKeys.getInt(1);
+			} else {
+				throw new SQLException("Creating booking failed, no ID obtained.");
+			}
+		}
+	}
+
+	public void updateBooking(int bookingId, int customerId, int ticketId, String bookingDate) throws SQLException {
+		String sql = "UPDATE Bookings SET CustomerID = ?, TicketID = ?, BookingDate = ? WHERE BookingID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, customerId);
+			pstmt.setInt(2, ticketId);
+			pstmt.setDate(3, java.sql.Date.valueOf(bookingDate));
+			pstmt.setInt(4, bookingId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteBooking(int bookingId) throws SQLException {
+		String sql = "DELETE FROM Bookings WHERE BookingID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, bookingId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getBooking(int bookingId) throws SQLException {
+		String sql = "SELECT * FROM Bookings WHERE BookingID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, bookingId);
+			return pstmt.executeQuery();
+		}
+	}
+
+	// Customers 테이블에 대한 CRUD 메소드
+	public int insertCustomer(String customerId, String customerName, String phone, String email) throws SQLException {
+		String sql = "INSERT INTO Customers (CustomerID, CustomerName, PhoneNumber, Email) VALUES (?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setString(1, customerId);
+			pstmt.setString(2, customerName);
+			pstmt.setString(3, phone);
+			pstmt.setString(4, email);
+			return pstmt.executeUpdate();
+		}
+	}
+
+	public void updateCustomer(int customerId, String customerName, String phone, String email) throws SQLException {
+		String sql = "UPDATE Customers SET CustomerName = ?, Phone = ?, Email = ? WHERE CustomerID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, customerName);
+			pstmt.setString(2, phone);
+			pstmt.setString(3, email);
+			pstmt.setInt(4, customerId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteCustomer(int customerId) throws SQLException {
+		String sql = "DELETE FROM Customers WHERE CustomerID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, customerId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getCustomer(int customerId) throws SQLException {
+		String sql = "SELECT * FROM Customers WHERE CustomerID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, customerId);
+			return pstmt.executeQuery();
+		}
+	}
+
+	// TheaterUse 테이블에 대한 CRUD 메소드
+	public int insertTheaterUse(int theaterId, int movieId, Boolean useDate) throws SQLException {
+		String sql = "INSERT INTO TheaterUse (TheaterID, ScreeningID, TheaterUse) VALUES (?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setInt(1, theaterId);
+			pstmt.setInt(2, movieId);
+			pstmt.setBoolean(3, useDate);
+			return pstmt.executeUpdate();
+		}
+	}
+
+	public void updateTheaterUse(int theaterUseId, int theaterId, int movieId, String useDate) throws SQLException {
+		String sql = "UPDATE TheaterUse SET TheaterID = ?, MovieID = ?, UseDate = ? WHERE TheaterUseID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, theaterId);
+			pstmt.setInt(2, movieId);
+			pstmt.setDate(3, java.sql.Date.valueOf(useDate));
+			pstmt.setInt(4, theaterUseId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public void deleteTheaterUse(int theaterUseId) throws SQLException {
+		String sql = "DELETE FROM TheaterUse WHERE TheaterUseID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, theaterUseId);
+			pstmt.executeUpdate();
+		}
+	}
+
+	public ResultSet getTheaterUse(int theaterUseId) throws SQLException {
+		String sql = "SELECT * FROM TheaterUse WHERE TheaterUseID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, theaterUseId);
+			return pstmt.executeQuery();
+		}
 	}
 
 	private void addInputFields(JFrame frame, JComponent... components) {
