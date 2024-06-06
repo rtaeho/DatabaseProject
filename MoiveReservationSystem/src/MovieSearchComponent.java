@@ -90,6 +90,7 @@ public class MovieSearchComponent extends JFrame {
 
 		return buttonPanel;
 	}
+	
 	public void showMovieList(String movieName, String director, String genre, String actor) {
 	    // 영화 목록 조회 로직 구현
 	    Statement stmt = null;
@@ -256,7 +257,20 @@ public class MovieSearchComponent extends JFrame {
 	        frame.setVisible(true);
 
 	        // 예매 버튼 이벤트 처리
-
+	        bookButton.addActionListener(e -> {
+	            int selectedRow = table.getSelectedRow();
+	            
+	            if (selectedRow >= 0) {
+	            	int screeningID = (int) model.getValueAt(selectedRow, 0);
+	            	int movieID = (int) model.getValueAt(selectedRow, 1);
+	            	int theaterID = (int) model.getValueAt(selectedRow, 2);
+	            	String screeningStartDate = (String) model.getValueAt(selectedRow, 3);
+	            	
+	            	System.out.println(screeningStartDate);
+	            } else {
+	                JOptionPane.showMessageDialog(frame, "상영일정을 선택하세요.", "예매 오류", JOptionPane.ERROR_MESSAGE);
+	            }
+	        });
 	        // 취소 버튼 이벤트 처리
 	        cancelButton.addActionListener(e -> frame.dispose());
 
