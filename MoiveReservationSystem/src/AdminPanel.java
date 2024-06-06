@@ -203,18 +203,18 @@ public class AdminPanel extends JPanel {
 
         String insertCustomers = 
         	    "INSERT INTO Customers (CustomerID, CustomerName, PhoneNumber, Email) VALUES " +
-        	    "('C001', 'Customer 1', '123-456-7890', 'customer1@example.com'), " +
-        	    "('C002', 'Customer 2', '123-456-7891', 'customer2@example.com'), " +
-        	    "('C003', 'Customer 3', '123-456-7892', 'customer3@example.com'), " +
-        	    "('C004', 'Customer 4', '123-456-7893', 'customer4@example.com'), " +
-        	    "('C005', 'Customer 5', '123-456-7894', 'customer5@example.com'), " +
-        	    "('C006', 'Customer 6', '123-456-7895', 'customer6@example.com'), " +
-        	    "('C007', 'Customer 7', '123-456-7896', 'customer7@example.com'), " +
-        	    "('C008', 'Customer 8', '123-456-7897', 'customer8@example.com'), " +
-        	    "('C009', 'Customer 9', '123-456-7898', 'customer9@example.com'), " +
-        	    "('C010', 'Customer 10', '123-456-7899', 'customer10@example.com'), " +
-        	    "('C011', 'Customer 11', '123-456-7800', 'customer11@example.com'), " +
-        	    "('C012', 'Customer 12', '123-456-7801', 'customer12@example.com')";
+        	    "('user1', 'Customer 1', '123-456-7890', 'customer1@example.com'), " +
+        	    "('user2', 'Customer 2', '123-456-7891', 'customer2@example.com'), " +
+        	    "('user3', 'Customer 3', '123-456-7892', 'customer3@example.com'), " +
+        	    "('user4', 'Customer 4', '123-456-7893', 'customer4@example.com'), " +
+        	    "('user5', 'Customer 5', '123-456-7894', 'customer5@example.com'), " +
+        	    "('user6', 'Customer 6', '123-456-7895', 'customer6@example.com'), " +
+        	    "('user7', 'Customer 7', '123-456-7896', 'customer7@example.com'), " +
+        	    "('user8', 'Customer 8', '123-456-7897', 'customer8@example.com'), " +
+        	    "('user9', 'Customer 9', '123-456-7898', 'customer9@example.com'), " +
+        	    "('user10', 'Customer 10', '123-456-7899', 'customer10@example.com'), " +
+        	    "('user11', 'Customer 11', '123-456-7800', 'customer11@example.com'), " +
+        	    "('user12', 'Customer 12', '123-456-7801', 'customer12@example.com')";
 
         String insertMovies = 
         	    "INSERT INTO Movies (Title, MovieTime, Rating, Director, Genre, Introduction, ReleaseDate, Score) VALUES " +
@@ -265,18 +265,19 @@ public class AdminPanel extends JPanel {
 
         String insertBookings = 
         	    "INSERT INTO Bookings (Payment, PaymentStatus, Amount, CustomerID, PaymentDate) VALUES " +
-        	    "('Credit Card', 'Paid', 150, 'C001', '2023-01-15'), " +
-        	    "('Credit Card', 'Pending', 200, 'C002', '2023-02-20'), " +
-        	    "('Cash', 'Paid', 100, 'C003', '2023-03-10'), " +
-        	    "('Credit Card', 'Cancelled', 250, 'C004', '2023-04-05'), " +
-        	    "('Cash', 'Paid', 175, 'C005', '2023-05-25'), " +
-        	    "('Credit Card', 'Refunded', 300, 'C006', '2023-06-15'), " +
-        	    "('Cash', 'Pending', 125, 'C007', '2023-07-30'), " +
-        	    "('Credit Card', 'Paid', 275, 'C008', '2023-08-18'), " +
-        	    "('Cash', 'Cancelled', 225, 'C009', '2023-09-22'), " +
-        	    "('Credit Card', 'Pending', 350, 'C010', '2023-10-05'), " +
-        	    "('Cash', 'Paid', 100, 'C011', '2023-11-11'), " +
-        	    "('Credit Card', 'Refunded', 150, 'C012', '2023-12-31')";
+        	    "('Credit Card', 'Paid', 150, 'user1', '2023-01-15'), " +
+        	    "('Credit Card', 'Pending', 200, 'user2', '2023-02-20'), " +
+        	    "('Cash', 'Paid', 100, 'user3', '2023-03-10'), " +
+        	    "('Credit Card', 'Cancelled', 250, 'user4', '2023-04-05'), " +
+        	    "('Cash', 'Paid', 175, 'user5', '2023-05-25'), " +
+        	    "('Credit Card', 'Refunded', 300, 'user6', '2023-06-15'), " +
+        	    "('Cash', 'Pending', 125, 'user7', '2023-07-30'), " +
+        	    "('Credit Card', 'Paid', 275, 'user8', '2023-08-18'), " +
+        	    "('Cash', 'Cancelled', 225, 'user9', '2023-09-22'), " +
+        	    "('Credit Card', 'Pending', 350, 'user10', '2023-10-05'), " +
+        	    "('Cash', 'Paid', 100, 'user11', '2023-11-11'), " +
+        	    "('Credit Card', 'Refunded', 150, 'user12', '2023-12-31')";
+
 
         String insertTickets = 
         	    "INSERT INTO Tickets (ScreeningID, SeatID, BookingID, IsTicketing, StandardPrice, SalePrice) VALUES " +
