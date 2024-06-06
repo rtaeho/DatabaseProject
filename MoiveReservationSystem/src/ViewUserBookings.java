@@ -3,6 +3,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.*;
 
 public class ViewUserBookings extends JFrame {
@@ -20,16 +22,19 @@ public class ViewUserBookings extends JFrame {
 		JButton deleteButton = new JButton("선택된 예매 삭제");
 		JButton changeMovieButton = new JButton("선택된 예매 영화 변경");
 		JButton changeScheduleButton = new JButton("선택된 예매 일정 변경");
+		JButton viewDetailsButton = new JButton("추가 정보 조회");
 
 		buttonPanel.add(deleteButton);
 		buttonPanel.add(changeMovieButton);
 		buttonPanel.add(changeScheduleButton);
+		buttonPanel.add(viewDetailsButton);
 
 		add(buttonPanel, BorderLayout.SOUTH);
 
 		deleteButton.addActionListener(new DeleteBookingAction());
 		changeMovieButton.addActionListener(new ChangeMovieAction());
 		changeScheduleButton.addActionListener(new ChangeScheduleAction());
+		viewDetailsButton.addActionListener(new ViewDetailsAction());
 
 		loadBookings();
 
@@ -59,10 +64,89 @@ public class ViewUserBookings extends JFrame {
 			bookingsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			JScrollPane scrollPane = new JScrollPane(bookingsTable);
 			add(scrollPane, BorderLayout.CENTER);
-
 			stmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private class ViewDetailsAction implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int selectedRow = bookingsTable.getSelectedRow();
+			if (selectedRow != -1) {
+				int bookingId = (int) bookingsTable.getValueAt(selectedRow, 0);
+				showAdditionalInfo(bookingId);
+			} else {
+				JOptionPane.showMessageDialog(ViewUserBookings.this, "예매를 선택하세요.", "예매 선택 필요",
+						JOptionPane.WARNING_MESSAGE);
+			}
+		}
+
+		private void showAdditionalInfo(int bookingId) {
+			JFrame frame = new JFrame("예매 추가 정보 조회");
+			frame.setSize(700, 400);
+			frame.setLayout(new BorderLayout());
+
+			JTextArea detailsTextArea = new JTextArea();
+			detailsTextArea.setEditable(false);
+			JScrollPane scrollPane = new JScrollPane(detailsTextArea);
+
+			frame.add(scrollPane, BorderLayout.CENTER);
+
+			try {
+				String query = "SELECT s.ScreeningDate, s.TheaterID "
+						+ "FROM Screenings s JOIN Movies m ON s.MovieID = m.MovieID "
+						+ "WHERE s.MovieID = (SELECT s.MovieID FROM Screenings s "
+						+ "JOIN Tickets t ON t.ScreeningID = s.ScreeningID WHERE t.BookingID = ?)";
+				PreparedStatement stmt = dbConnection.prepareStatement(query);
+				stmt.setInt(1, bookingId);
+				ResultSet rs = stmt.executeQuery();
+
+				StringBuilder details = new StringBuilder();
+				details.append("상영일\t상영관번호\n");
+
+				while (rs.next()) {
+					details.append(rs.getDate("ScreeningDate")).append("\t").append(rs.getInt("TheaterID"))
+							.append("\n");
+				}
+
+				detailsTextArea.setText(details.toString());
+
+				stmt.close();
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+
+			try {
+				String query = "SELECT * FROM Tickets WHERE BookingID = ?";
+				PreparedStatement stmt = dbConnection.prepareStatement(query);
+				stmt.setInt(1, bookingId);
+				ResultSet rs = stmt.executeQuery();
+
+				StringBuilder details = new StringBuilder();
+				details.append("티켓ID\t상영일정\t좌석번호\t예매번호\t발권여부\t표준가격\t판매가격\n");
+
+				while (rs.next()) {
+					details.append(rs.getInt("TicketID")).append("\t").append(rs.getInt("ScreeningID")).append("\t")
+							.append(rs.getInt("SeatId")).append("\t").append(rs.getInt("BookingId")).append("\t")
+							.append(rs.getBoolean("IsTicketing")).append("\t").append(rs.getDouble("StandardPrice"))
+							.append("\t").append(rs.getDouble("SalePrice")).append("\n");
+				}
+
+				detailsTextArea.append("\n\n티켓 상세 정보:\n");
+				detailsTextArea.append(details.toString());
+
+				stmt.close();
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+
+			// 추가 정보를 표시하는 코드 추가
+			// 예를 들어, 사용자가 예약한 영화관의 위치나 예약된 좌석의 위치 등을 표시할 수 있습니다.
+
+			frame.setLocationRelativeTo(null);
+			frame.setVisible(true);
 		}
 	}
 
@@ -618,7 +702,6 @@ public class ViewUserBookings extends JFrame {
 					PreparedStatement updateSeatsStmt = dbConnection.prepareStatement(updateSeatsQuery);
 					updateSeatsStmt.setInt(1, bookingId);
 					updateSeatsStmt.executeUpdate();
-					
 					String deleteTicketQuery = "DELETE FROM Tickets WHERE BookingID = ?";
 					PreparedStatement deleteTicketStmt = dbConnection.prepareStatement(deleteTicketQuery);
 					deleteTicketStmt.setInt(1, bookingId);
