@@ -323,39 +323,6 @@ public class MovieInputComponent extends JFrame {
 		}
 	}
 
-	public void updateMovie(int movieId, String title, int movieTime, String rating, String director, String genre,
-			String introduction, String releaseDate, double score) throws SQLException {
-		String sql = "UPDATE Movies SET Title = ?, MovieTime = ?, Rating = ?, Director = ?, Genre = ?, Introduction = ?, ReleaseDate = ?, Score = ? WHERE MovieID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setString(1, title);
-			pstmt.setInt(2, movieTime);
-			pstmt.setString(3, rating);
-			pstmt.setString(4, director);
-			pstmt.setString(5, genre);
-			pstmt.setString(6, introduction);
-			pstmt.setDate(7, java.sql.Date.valueOf(releaseDate));
-			pstmt.setDouble(8, score);
-			pstmt.setInt(9, movieId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public void deleteMovie(int movieId) throws SQLException {
-		String sql = "DELETE FROM Movies WHERE MovieID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, movieId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public ResultSet getMovie(int movieId) throws SQLException {
-		String sql = "SELECT * FROM Movies WHERE MovieID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, movieId);
-			return pstmt.executeQuery();
-		}
-	}
-
 	// Actors 테이블에 대한 CRUD 메소드
 	public int insertActor(String actorName) throws SQLException {
 		String sql = "INSERT INTO Actors (ActorName) VALUES (?) ON DUPLICATE KEY UPDATE ActorID=LAST_INSERT_ID(ActorID)";
@@ -371,31 +338,6 @@ public class MovieInputComponent extends JFrame {
 		}
 	}
 
-	public void updateActor(int actorId, String actorName) throws SQLException {
-		String sql = "UPDATE Actors SET ActorName = ? WHERE ActorID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setString(1, actorName);
-			pstmt.setInt(2, actorId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public void deleteActor(int actorId) throws SQLException {
-		String sql = "DELETE FROM Actors WHERE ActorID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, actorId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public ResultSet getActor(int actorId) throws SQLException {
-		String sql = "SELECT * FROM Actors WHERE ActorID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, actorId);
-			return pstmt.executeQuery();
-		}
-	}
-
 	// MovieActors 테이블에 대한 CRUD 메소드
 	public void insertMovieActor(int movieId, int actorId) throws SQLException {
 		String sql = "INSERT INTO MovieActors (MovieID, ActorID) VALUES (?, ?)";
@@ -406,43 +348,25 @@ public class MovieInputComponent extends JFrame {
 		}
 	}
 
-	public void deleteMovieActor(int movieId, int actorId) throws SQLException {
-		String sql = "DELETE FROM MovieActors WHERE MovieID = ? AND ActorID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, movieId);
-			pstmt.setInt(2, actorId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public ResultSet getMovieActors(int movieId) throws SQLException {
-		String sql = "SELECT * FROM MovieActors WHERE MovieID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, movieId);
-			return pstmt.executeQuery();
-		}
-	}
-
 	// Screenings 테이블에 대한 CRUD 메소드
 	public int insertScreening(int movieId, int theaterId, String startDate, String screeningDate, int session,
 			String startTime) throws SQLException {
-		String sql = "INSERT INTO Screenings (MovieID, TheaterID, ScreeningStartDate, ScreeningDate, SessionNumber, StartTime) VALUES (?, ?, ?, ?, ?, ?)";	
-	    String countSql = "SELECT COUNT(*) FROM Screenings WHERE MovieID = ?";
-	    
-	    try (PreparedStatement countStmt = connection.prepareStatement(countSql)) {
-	        countStmt.setInt(1, movieId);
-	        ResultSet rs = countStmt.executeQuery();
-	        if (rs.next()) {
-	            int count = rs.getInt(1);
-	            if (count >= 4) {
-	                throw new SQLException("한 영화에 상영 일정은 4개까지만 입력 가능합니다.");
-	            }
-	        } else {
-	            throw new SQLException("상영 일정 개수 확인에 실패했습니다.");
-	        }
-	    }
-		
-		
+		String sql = "INSERT INTO Screenings (MovieID, TheaterID, ScreeningStartDate, ScreeningDate, SessionNumber, StartTime) VALUES (?, ?, ?, ?, ?, ?)";
+		String countSql = "SELECT COUNT(*) FROM Screenings WHERE MovieID = ?";
+
+		try (PreparedStatement countStmt = connection.prepareStatement(countSql)) {
+			countStmt.setInt(1, movieId);
+			ResultSet rs = countStmt.executeQuery();
+			if (rs.next()) {
+				int count = rs.getInt(1);
+				if (count >= 4) {
+					throw new SQLException("한 영화에 상영 일정은 4개까지만 입력 가능합니다.");
+				}
+			} else {
+				throw new SQLException("상영 일정 개수 확인에 실패했습니다.");
+			}
+		}
+
 		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pstmt.setInt(1, movieId);
 			pstmt.setInt(2, theaterId);
@@ -460,37 +384,6 @@ public class MovieInputComponent extends JFrame {
 		}
 	}
 
-	public void updateScreening(int screeningId, int movieId, int theaterId, String startDate, String screeningDate,
-			int session, String startTime) throws SQLException {
-		String sql = "UPDATE Screenings SET MovieID = ?, TheaterID = ?, StartDate = ?, ScreeningDate = ?, Session = ?, StartTime = ? WHERE ScreeningID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, movieId);
-			pstmt.setInt(2, theaterId);
-			pstmt.setDate(3, java.sql.Date.valueOf(startDate));
-			pstmt.setDate(4, java.sql.Date.valueOf(screeningDate));
-			pstmt.setInt(5, session);
-			pstmt.setTime(6, java.sql.Time.valueOf(startTime));
-			pstmt.setInt(7, screeningId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public void deleteScreening(int screeningId) throws SQLException {
-		String sql = "DELETE FROM Screenings WHERE ScreeningID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, screeningId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public ResultSet getScreening(int screeningId) throws SQLException {
-		String sql = "SELECT * FROM Screenings WHERE ScreeningID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, screeningId);
-			return pstmt.executeQuery();
-		}
-	}
-
 	// Seats 테이블에 대한 CRUD 메소드
 	public void insertSeat(int theaterId, int screeningId, boolean isAvailable) throws SQLException {
 		String sql = "INSERT INTO Seats (TheaterID, ScreeningID, IsActive) VALUES (?, ?, ?)";
@@ -503,31 +396,6 @@ public class MovieInputComponent extends JFrame {
 
 	}
 
-	public void updateSeat(int seatId, boolean isAvailable) throws SQLException {
-		String sql = "UPDATE Seats SET IsAvailable = ? WHERE SeatID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setBoolean(1, isAvailable);
-			pstmt.setInt(2, seatId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public void deleteSeat(int seatId) throws SQLException {
-		String sql = "DELETE FROM Seats WHERE SeatID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, seatId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public ResultSet getSeat(int seatId) throws SQLException {
-		String sql = "SELECT * FROM Seats WHERE SeatID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, seatId);
-			return pstmt.executeQuery();
-		}
-	}
-
 	// Theaters 테이블에 대한 CRUD 메소드
 	public int insertTheater(int theaterName, int totalSeats, int horizontalSeats, int verticalSeats)
 			throws SQLException {
@@ -538,24 +406,6 @@ public class MovieInputComponent extends JFrame {
 			pstmt.setInt(3, horizontalSeats);
 			pstmt.setInt(4, verticalSeats);
 			return pstmt.executeUpdate();
-		}
-	}
-
-	public void updateTheater(int theaterId, String theaterName, int totalSeats) throws SQLException {
-		String sql = "UPDATE Theaters SET TheaterName = ?, TotalSeats = ? WHERE TheaterID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setString(1, theaterName);
-			pstmt.setInt(2, totalSeats);
-			pstmt.setInt(3, theaterId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public void deleteTheater(int theaterId) throws SQLException {
-		String sql = "DELETE FROM Theaters WHERE TheaterID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, theaterId);
-			pstmt.executeUpdate();
 		}
 	}
 
@@ -594,35 +444,6 @@ public class MovieInputComponent extends JFrame {
 		}
 	}
 
-	public void updateTicket(int ticketId, int screeningId, int seatId, double price, boolean isPurchased)
-			throws SQLException {
-		String sql = "UPDATE Tickets SET ScreeningID = ?, SeatID = ?, Price = ?, IsPurchased = ? WHERE TicketID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, screeningId);
-			pstmt.setInt(2, seatId);
-			pstmt.setDouble(3, price);
-			pstmt.setBoolean(4, isPurchased);
-			pstmt.setInt(5, ticketId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public void deleteTicket(int ticketId) throws SQLException {
-		String sql = "DELETE FROM Tickets WHERE TicketID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, ticketId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public ResultSet getTicket(int ticketId) throws SQLException {
-		String sql = "SELECT * FROM Tickets WHERE TicketID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, ticketId);
-			return pstmt.executeQuery();
-		}
-	}
-
 	// Bookings 테이블에 대한 CRUD 메소드
 	public int insertBooking(String paymentMethod, String paymentStatus, int amount, String customerId,
 			String bookingDate) throws SQLException {
@@ -643,33 +464,6 @@ public class MovieInputComponent extends JFrame {
 		}
 	}
 
-	public void updateBooking(int bookingId, int customerId, int ticketId, String bookingDate) throws SQLException {
-		String sql = "UPDATE Bookings SET CustomerID = ?, TicketID = ?, BookingDate = ? WHERE BookingID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, customerId);
-			pstmt.setInt(2, ticketId);
-			pstmt.setDate(3, java.sql.Date.valueOf(bookingDate));
-			pstmt.setInt(4, bookingId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public void deleteBooking(int bookingId) throws SQLException {
-		String sql = "DELETE FROM Bookings WHERE BookingID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, bookingId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public ResultSet getBooking(int bookingId) throws SQLException {
-		String sql = "SELECT * FROM Bookings WHERE BookingID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, bookingId);
-			return pstmt.executeQuery();
-		}
-	}
-
 	// Customers 테이블에 대한 CRUD 메소드
 	public int insertCustomer(String customerId, String customerName, String phone, String email) throws SQLException {
 		String sql = "INSERT INTO Customers (CustomerID, CustomerName, PhoneNumber, Email) VALUES (?, ?, ?, ?)";
@@ -682,33 +476,6 @@ public class MovieInputComponent extends JFrame {
 		}
 	}
 
-	public void updateCustomer(int customerId, String customerName, String phone, String email) throws SQLException {
-		String sql = "UPDATE Customers SET CustomerName = ?, Phone = ?, Email = ? WHERE CustomerID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setString(1, customerName);
-			pstmt.setString(2, phone);
-			pstmt.setString(3, email);
-			pstmt.setInt(4, customerId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public void deleteCustomer(int customerId) throws SQLException {
-		String sql = "DELETE FROM Customers WHERE CustomerID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, customerId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public ResultSet getCustomer(int customerId) throws SQLException {
-		String sql = "SELECT * FROM Customers WHERE CustomerID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, customerId);
-			return pstmt.executeQuery();
-		}
-	}
-
 	// TheaterUse 테이블에 대한 CRUD 메소드
 	public int insertTheaterUse(int theaterId, int movieId, Boolean useDate) throws SQLException {
 		String sql = "INSERT INTO TheaterUse (TheaterID, ScreeningID, TheaterUse) VALUES (?, ?, ?)";
@@ -717,33 +484,6 @@ public class MovieInputComponent extends JFrame {
 			pstmt.setInt(2, movieId);
 			pstmt.setBoolean(3, useDate);
 			return pstmt.executeUpdate();
-		}
-	}
-
-	public void updateTheaterUse(int theaterUseId, int theaterId, int movieId, String useDate) throws SQLException {
-		String sql = "UPDATE TheaterUse SET TheaterID = ?, MovieID = ?, UseDate = ? WHERE TheaterUseID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, theaterId);
-			pstmt.setInt(2, movieId);
-			pstmt.setDate(3, java.sql.Date.valueOf(useDate));
-			pstmt.setInt(4, theaterUseId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public void deleteTheaterUse(int theaterUseId) throws SQLException {
-		String sql = "DELETE FROM TheaterUse WHERE TheaterUseID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, theaterUseId);
-			pstmt.executeUpdate();
-		}
-	}
-
-	public ResultSet getTheaterUse(int theaterUseId) throws SQLException {
-		String sql = "SELECT * FROM TheaterUse WHERE TheaterUseID = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, theaterUseId);
-			return pstmt.executeQuery();
 		}
 	}
 

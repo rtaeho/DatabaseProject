@@ -10,7 +10,7 @@ import java.sql.*;
 public class ViewUserBookings extends JFrame {
 	private Connection dbConnection;
 	private JTable bookingsTable;
-	private String userId = "user1"; // 현재 사용자 ID, 예시로 "user1" 사용
+	private String userId = "user1"; // 현재 사용자 ID "user1"으로 가정
 
 	public ViewUserBookings(Connection dbConnection) {
 		this.dbConnection = dbConnection;
@@ -141,9 +141,6 @@ public class ViewUserBookings extends JFrame {
 			} catch (SQLException ex) {
 				ex.printStackTrace();
 			}
-
-			// 추가 정보를 표시하는 코드 추가
-			// 예를 들어, 사용자가 예약한 영화관의 위치나 예약된 좌석의 위치 등을 표시할 수 있습니다.
 
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);

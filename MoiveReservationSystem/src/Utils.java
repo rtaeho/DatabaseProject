@@ -6,12 +6,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Utils {
-    public static void showMessage(String message) {
-        JOptionPane.showMessageDialog(null, message);
-    }
+	public static void showMessage(String message) {
+		JOptionPane.showMessageDialog(null, message);
+	}
 
-    public static Connection connectToDatabase(String username, String password) {
-    	Connection conn = null;
+	public static Connection connectToDatabase(String username, String password) {
+		Connection conn = null;
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver"); // MySQL 드라이버 로드
 			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db1", username, password); // JDBC 연결
@@ -24,15 +24,15 @@ public class Utils {
 			System.out.println("DB 연결 오류");
 		}
 		return conn;
-    }
-    
-    public static void switchToPanel(JComponent component, JPanel newPanel) {
-        JFrame frame = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, component);
-        if (frame != null) {
-            frame.getContentPane().removeAll();
-            frame.getContentPane().add(newPanel, BorderLayout.CENTER);
-            frame.revalidate();
-            frame.repaint();
-        }
-    }
+	}
+
+	public static void switchToPanel(JComponent component, JPanel newPanel) {
+		JFrame frame = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, component);
+		if (frame != null) {
+			frame.getContentPane().removeAll();
+			frame.getContentPane().add(newPanel, BorderLayout.CENTER);
+			frame.revalidate();
+			frame.repaint();
+		}
+	}
 }

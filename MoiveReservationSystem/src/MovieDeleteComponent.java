@@ -23,7 +23,7 @@ public class MovieDeleteComponent extends JFrame {
 		addButton("Bookings");
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setLocationRelativeTo(null); // 창을 화면 중앙에 배치
+		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 
@@ -68,7 +68,8 @@ public class MovieDeleteComponent extends JFrame {
 				int rowsAffected = stmt.executeUpdate();
 				JOptionPane.showMessageDialog(currentFrame, "수정된 행의 수: " + rowsAffected);
 			} catch (SQLException ex) {
-				JOptionPane.showMessageDialog(currentFrame, "SQL 실행 오류: " + ex.getMessage(), "오류",
+				JOptionPane
+						.showMessageDialog(currentFrame, "SQL 실행 오류: " + ex.getMessage(), "오류",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		});

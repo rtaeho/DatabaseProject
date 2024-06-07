@@ -69,7 +69,7 @@ public class AdminPanel extends JPanel {
 			while (tables.next()) {
 				String tableName = tables.getString("TABLE_NAME");
 				String dropQuery = "DROP TABLE IF EXISTS " + tableName;
-				Utils.showMessage(tableName + "제거");   // 찾아낸 테이블들 제거 알림 메시지 
+				Utils.showMessage(tableName + "제거"); // 찾아낸 테이블들 제거 알림 메시지
 				stmt.executeUpdate(dropQuery);
 			}
 
