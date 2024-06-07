@@ -69,9 +69,8 @@ public class AdminPanel extends JPanel {
 			while (tables.next()) {
 				String tableName = tables.getString("TABLE_NAME");
 				String dropQuery = "DROP TABLE IF EXISTS " + tableName;
-				Utils.showMessage(tableName); // 테스트용: 찾아낸 테이블 이름 출력
+				Utils.showMessage(tableName + "제거");   // 찾아낸 테이블들 제거 알림 메시지 
 				stmt.executeUpdate(dropQuery);
-
 			}
 
 			stmt.executeUpdate("SET foreign_key_checks = 1"); // 외래키 제약조건 재설정
@@ -255,10 +254,6 @@ public class AdminPanel extends JPanel {
 
 			stmt.executeUpdate(insertBookings);
 
-			/*
-			 * Ticket 샘플데이터 입력 시 Ticket에 있는 SeatID -> 활성화, Seats테이블에서 해당 하는 SeatID의
-			 * IsActive를 true로 업데이트
-			 */
 			stmt.executeUpdate(insertTickets);
 			stmt.executeUpdate(updateSeats);
 
@@ -408,7 +403,4 @@ public class AdminPanel extends JPanel {
 			}
 		}
 	}
-	// testing
-	// MovieInputComponent, MovieDeleteComponent, MovieUpdateComponent 클래스의
-	// 생성자 및 메서드는 실제 구현에 따라 내용을 추가해야 함.
 }

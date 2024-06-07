@@ -426,7 +426,23 @@ public class MovieInputComponent extends JFrame {
 	// Screenings 테이블에 대한 CRUD 메소드
 	public int insertScreening(int movieId, int theaterId, String startDate, String screeningDate, int session,
 			String startTime) throws SQLException {
-		String sql = "INSERT INTO Screenings (MovieID, TheaterID, ScreeningStartDate, ScreeningDate, SessionNumber, StartTime) VALUES (?, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO Screenings (MovieID, TheaterID, ScreeningStartDate, ScreeningDate, SessionNumber, StartTime) VALUES (?, ?, ?, ?, ?, ?)";	
+	    String countSql = "SELECT COUNT(*) FROM Screenings WHERE MovieID = ?";
+	    
+	    try (PreparedStatement countStmt = connection.prepareStatement(countSql)) {
+	        countStmt.setInt(1, movieId);
+	        ResultSet rs = countStmt.executeQuery();
+	        if (rs.next()) {
+	            int count = rs.getInt(1);
+	            if (count >= 4) {
+	                throw new SQLException("한 영화에 상영 일정은 4개까지만 입력 가능합니다.");
+	            }
+	        } else {
+	            throw new SQLException("상영 일정 개수 확인에 실패했습니다.");
+	        }
+	    }
+		
+		
 		try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pstmt.setInt(1, movieId);
 			pstmt.setInt(2, theaterId);
