@@ -25,5 +25,4 @@ public class UserPanel extends JPanel {
 		viewBookingsButton.addActionListener(e -> new ViewUserBookings(dbConnection));
 		backButton.addActionListener(e -> Utils.switchToPanel(this, new MainPanel()));
 	}
-F
 }
