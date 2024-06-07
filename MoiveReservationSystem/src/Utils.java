@@ -11,14 +11,21 @@ public class Utils {
     }
 
     public static Connection connectToDatabase(String username, String password) {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            return DriverManager.getConnection("jdbc:mysql://localhost:3306/db1", username, password);
-        } catch (ClassNotFoundException | SQLException e) {
-            showMessage("Database connection error: " + e.getMessage());
-            return null;
-        }
+    	Connection conn = null;
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver"); // MySQL 드라이버 로드
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db1", username, password); // JDBC 연결
+			System.out.println("DB 연결 완료");
+		} catch (ClassNotFoundException e) {
+			showMessage("Database connection error: " + e.getMessage());
+			System.out.println("JDBC 드라이버 로드 오류");
+		} catch (SQLException e) {
+			showMessage("Database connection error: " + e.getMessage());
+			System.out.println("DB 연결 오류");
+		}
+		return conn;
     }
+    
     public static void switchToPanel(JComponent component, JPanel newPanel) {
         JFrame frame = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, component);
         if (frame != null) {
